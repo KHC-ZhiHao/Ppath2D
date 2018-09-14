@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset=utf-8>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Ppath2D</title>
+</head>
+
+<body>
+
+	<canvas id="demo" width="800" height="600"></canvas>
+
+</body>
+
+<style>
+	#demo {
+		background-color: aquamarine;
+	}
+</style>
+
+<script src="./dist/index.js"></script>
+<script>
+
+	let canvas = document.getElementById("demo");
+	let context = canvas.getContext('2d');
+	
+	//function
+	let line = new Ppath2D();
+		line.moveTo(10,10).lineTo(200,200);
+		line.render(context);
+	context.strokeStyle = "#000";
+	context.stroke();
+
+	//d mode
+	let d = new Ppath2D('m30,10 l200,200');
+		d.render(context);
+	context.strokeStyle = "#F00";
+	context.stroke();
+
+	//position
+	let Pp = new Ppath2D('m40,10 l200,200');
+		Pp.render(context);
+	context.stroke();
+	let position = Pp.getLinePosition(0.5);
+	context.fillRect(position.x, position.y, 5, 5);
+
+	//polygon and fill
+	let star = new Ppath2D(`
+		27.729,43.169 11.256,51.829 14.402,33.486 1.075,20.495 19.492,17.819 27.729,1.13 
+		35.966,17.819 54.383,20.495 41.056,33.486 44.202,51.829
+	`, 'polygon');
+	context.translate(100,10);
+	context.fillStyle = "#F00";
+	star.render(context);
+	context.fill();
+	context.translate(-100,-10);
+
+	//direction
+	let Pd = new Ppath2D('m250,10 l200,200');
+		Pd.render(context);
+	let dposition = Pd.getLinePosition(0.33);
+	context.stroke();
+	context.translate( dposition.x, dposition.y );
+	context.rotate( Pd.getDirection(0.33) * Math.PI / 180 );
+	context.fillStyle = "#00F";
+	context.fillRect( 0, 0, 5, 10);
+
+</script>
+
+</html>
+
