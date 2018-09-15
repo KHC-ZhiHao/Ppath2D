@@ -4,7 +4,7 @@ class Path extends ModuleBase {
         super("Path");
         this.points = [];
         this.length = 0;
-        if(data){
+        if( data ){
             let type = typeof data;
             if( type === "string" ){
                 this.compile( data.trim(), mode );
@@ -112,7 +112,7 @@ class Path extends ModuleBase {
     }
 
     getLastPoint(){
-        return this.points.length === 0 ? this : this.points.slice(-1)[0];
+        return this.points.length === 0 ? { ex : 0, ey : 0 } : this.points.slice(-1)[0];
     }
 
     getLastPosition(){
@@ -149,7 +149,7 @@ class Path extends ModuleBase {
     }
 
     moveTo( x, y, abs = false ){
-        this.addPoint( new Path.PointBase.MoveTo( this, x, y, abs ) );
+        this.addPoint( new Path.PointBase.MoveTo( this, this.getLastPoint(), x, y, abs ) );
         return this;
     }
 
@@ -194,7 +194,10 @@ class Path extends ModuleBase {
     }
 
     closePath(){
-        this.addPoint(new Path.PointBase.ClosePath(this, this.getLastPoint()));
+        let target = this.points.filter((p)=>{
+            return p instanceof Path.PointBase.MoveTo;
+        }).pop();
+        this.addPoint(new Path.PointBase.ClosePath(this, this.getLastPoint(), target));
         return this;
     }
 
@@ -291,8 +294,8 @@ Path.PointBase = class {
 
 Path.PointBase.MoveTo = class extends Path.PointBase {
 
-    constructor( path, x, y, absolute ){
-        super( path, { ex : 0, ey : 0 }, absolute );
+    constructor( path, parent, x, y, absolute ){
+        super( path, parent, absolute );
         this.reset({
             ex : x,
             ey : y,
@@ -315,7 +318,6 @@ Path.PointBase.MoveTo = class extends Path.PointBase {
     }
 
 }
-
 
 Path.PointBase.LineTo = class extends Path.PointBase {
 
@@ -351,7 +353,7 @@ Path.PointBase.LineTo = class extends Path.PointBase {
 Path.PointBase.HorizontalLineTo = class extends Path.PointBase.LineTo {
 
     constructor( path, parent, x, absolute ){
-        super( path, parent, x, 0, absolute );
+        super( path, parent, x, absolute ? parent.ey : 0, absolute );
     }
 
     toPathString(){
@@ -363,7 +365,7 @@ Path.PointBase.HorizontalLineTo = class extends Path.PointBase.LineTo {
 Path.PointBase.VerticalLineTo = class extends Path.PointBase.LineTo {
 
     constructor( path, parent, y, absolute ){
-        super( path, parent, 0, y, absolute );
+        super( path, parent, absolute ? parent.ex : 0, y, absolute );
     }
 
     toPathString(){
@@ -682,15 +684,9 @@ Path.PointBase.Arc = class extends Path.PointBase{
 
 Path.PointBase.ClosePath = class extends Path.PointBase.LineTo {
 
-    constructor( path, parent ){
-        super( path, parent, 0, 0 );
+    constructor( path, parent, target ){
+        super( path, parent, target.ex, target.ey, target.absolute );
     }
-
-    get ex(){ return this.path.points[0].ex }
-    set ex(val){}
-
-    get ey(){ return this.path.points[0].ey }
-    set ey(val){}
 
     render(context){
         context.closePath();

@@ -6,6 +6,8 @@ Ppath2D是一個javascript canvas path render函式庫。
 
 P代表position，本庫不僅能夠在cavnas 2d繪製路徑，更能取得路徑的定位與方向，發掘更多有趣的應用與效果。
 
+[使用路徑模擬路燈底下的飛蟻](https://khc-zhihao.github.io/Ppath2D/index.html)
+
 >此module並未使用Path2D渲染，而是使用更底層的計算方法繪製圖形，不僅是為了降低瀏覽器支援問題，更希望能夠使用在繪圖以外的應用。
 
 ## 安裝
@@ -123,7 +125,7 @@ let direction = p.getDirection(0.5);
 
 ## 感謝
 
-[這篇文章幫助我省下大量的撞牆時間，超讚](https://ericeastwood.com/blog/25/curves-and-arcs-quadratic-cubic-elliptical-svg-implementations)
+[公式參考](https://ericeastwood.com/blog/25/curves-and-arcs-quadratic-cubic-elliptical-svg-implementations)
 
 [npm-image]: https://img.shields.io/npm/v/ppath2d.svg
 [npm-url]: https://npmjs.org/package/ppath2d
