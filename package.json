@@ -1,0 +1,24 @@
+{
+  "name": "ppath2d",
+  "version": "1.0.2",
+  "description": "Can get position and direction of svg path.",
+  "main": "./dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KHC-ZhiHao/Ppath2D.git"
+  },
+  "keywords": [
+    "svg",
+    "path",
+    "position"
+  ],
+  "author": "khczhihao",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KHC-ZhiHao/Ppath2D/issues"
+  },
+  "homepage": "https://github.com/KHC-ZhiHao/Ppath2D#readme"
+}
