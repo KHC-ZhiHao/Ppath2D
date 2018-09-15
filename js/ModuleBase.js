@@ -6,11 +6,6 @@ class ModuleBase {
         }
     }
 
-    /**
-     * @function each(array|object,callback)
-     * @desc 跑一個迴圈
-     */
-
     each( target, callback ){
     	if( typeof target === "object" ){
     		if( Array.isArray(target) ){
@@ -32,11 +27,6 @@ class ModuleBase {
         }
     }
 
-    /**
-    * @function systemError(functionName,maessage,object)
-    * @desc 於console呼叫錯誤，中斷程序並顯示錯誤的物件
-    */
-    
     systemError( functionName, message, object ){
         if( object ){
             console.log( `%c error object is : `, 'color:#FFF; background:red' );

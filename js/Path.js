@@ -86,7 +86,11 @@ class Path extends ModuleBase {
     }
 
     addPath(path){
-        this.compile(path.toString());
+        if( path instanceof Path ){
+            this.compile(path.toPathString());
+        }else{
+            this.systemError( "addPath", "Object not a Ppath2D data.", path );
+        }
     }
 
     refresh(){
@@ -109,6 +113,7 @@ class Path extends ModuleBase {
         this.eachPoint((point)=>{
             string += point.toPathString();
         });
+        return string;
     }
 
     getLastPoint(){
@@ -307,7 +312,7 @@ Path.PointBase.MoveTo = class extends Path.PointBase {
     }
 
     toPathString(){
-        return `${this.absolute ? "M" : "m"}${this.ex},${this.ey}`;
+        return `M${this.ex},${this.ey}`;
     }
     
     getLinePosition(t){
@@ -334,7 +339,7 @@ Path.PointBase.LineTo = class extends Path.PointBase {
     }
 
     toPathString(){
-        return `${this.absolute ? "L" : "l"}${this.ex},${this.ey}`;
+        return `L${this.ex},${this.ey}`;
     }
     
     getLinePosition(t){
@@ -357,7 +362,7 @@ Path.PointBase.HorizontalLineTo = class extends Path.PointBase.LineTo {
     }
 
     toPathString(){
-        return `${this.absolute ? "H" : "h"}${this.ex}`;
+        return `H${this.ex}`;
     }
 
 }
@@ -369,7 +374,7 @@ Path.PointBase.VerticalLineTo = class extends Path.PointBase.LineTo {
     }
 
     toPathString(){
-        return `${this.absolute ? "V" : "v"}${this.ey}`;
+        return `V${this.ey}`;
     }
 
 }
@@ -424,7 +429,7 @@ Path.PointBase.Curve = class extends Path.PointBase {
     }
 
     toPathString(){
-        return `${this.absolute ? "C" : "c"}${this.p1x},${this.p1y},${this.p2x},${this.p2y},${this.ex},${this.ey}`;
+        return `C${this.p1x},${this.p1y},${this.p2x},${this.p2y},${this.ex},${this.ey}`;
     }
 
     getLinePosition(t){
@@ -453,7 +458,7 @@ Path.PointBase.QuadraticBezierCurve = class extends Path.PointBase.Curve {
     }
 
     toPathString(){
-        return `${this.absolute ? "Q" : "q"}${this.p1x},${this.p1y},${this.ex},${this.ey}`;
+        return `Q${this.p1x},${this.p1y},${this.ex},${this.ey}`;
     }
 
     getPoint( t, s, p1, p2, e ){
@@ -481,7 +486,7 @@ Path.PointBase.SmoothCurve = class extends Path.PointBase.Curve {
     }
 
     toPathString(){
-        return `${this.absolute ? "S" : "s"}${this.p2x},${this.p2y},${this.ex},${this.ey}`;
+        return `S${this.p2x},${this.p2y},${this.ex},${this.ey}`;
     }
 
 }
@@ -512,7 +517,7 @@ Path.PointBase.SmoothQuadraticBezierCurve = class extends Path.PointBase.Curve {
     }
 
     toPathString(){
-        return `${this.absolute ? "T" : "t"}${this.ex},${this.ey}`;
+        return `T${this.ex},${this.ey}`;
     }
 
     getPoint( t, s, p1, p2, e ){
@@ -521,8 +526,6 @@ Path.PointBase.SmoothQuadraticBezierCurve = class extends Path.PointBase.Curve {
 
 }
 
-//Thanks!
-//https://ericeastwood.com/blog/25/curves-and-arcs-quadratic-cubic-elliptical-svg-implementations
 Path.PointBase.Arc = class extends Path.PointBase{
 
     constructor( path, parent, rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x, y, absolute = false ){
@@ -560,7 +563,7 @@ Path.PointBase.Arc = class extends Path.PointBase{
     }
 
     toPathString(){
-        return `${this.absolute ? "A" : "a"}${this.rx},${this.ry},${this.xAxisRotation},${this.largeArcFlag},${this.sweepFlag},${this.ex},${this.ey}`;
+        return `A${this.rx},${this.ry},${this.xAxisRotation},${this.largeArcFlag},${this.sweepFlag},${this.ex},${this.ey}`;
     }
 
     angleBetween(v0, v1) {

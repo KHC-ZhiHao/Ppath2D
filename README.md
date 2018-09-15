@@ -64,7 +64,16 @@ Ppath2D的路徑可以轉換成d語法
 ```js
 let line = new Ppath2D();
 line.moveTo(10,10).lineTo(200,200);
-line.toPathString() // "m10,10 l200,200"
+line.toPathString() // "M10,10 L200,200"
+```
+
+### 加入路徑
+
+可於尾端加入一條 *Ppath2D* 的路徑
+
+```js
+let line = new Ppath2D('m10,10 l200,200');
+    line.addPath(new Ppath2D('m0,0 l200,200'));
 ```
 
 ### 若要解讀多變形，將第二個參數傳入"polygon"
