@@ -125,5 +125,5 @@ let direction = p.getDirection(0.5);
 
 [這篇文章幫助我省下大量的撞牆時間，超讚](https://ericeastwood.com/blog/25/curves-and-arcs-quadratic-cubic-elliptical-svg-implementations)
 
-[npm-image]: https://img.shields.io/npm/v/ppath.svg
-[npm-url]: https://npmjs.org/package/ppath
+[npm-image]: https://img.shields.io/npm/v/ppath2d.svg
+[npm-url]: https://npmjs.org/package/ppath2d
