@@ -34,7 +34,7 @@ html:
 
 webpack
 ```js
-import Ppath from 'ppath2'
+import Ppath from 'ppath2d'
 let line = new Ppath2D();
 ```
 
