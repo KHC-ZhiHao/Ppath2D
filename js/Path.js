@@ -56,19 +56,25 @@ class Path extends ModuleBase {
                 }
             })
         }else if( mode === "polygon" ){
-            let params = "";
-            for( let i = 0 ; i < data.length ; i++ ){
-                if( data[i] === "-" ){ params += " "; }
-                params += data[i];
-            }
-            var data = params.split(/,|\s/).filter((t)=>{return t !== ""}).map((d)=>{
-                return Number(d);
-            });
-            this.moveTo( data[0], data[1], true );
-            for( let i = 2 ; i < data.length ; i+=2 ){
-                this.lineTo( data[i], data[i+1], true );
-            }
+            this.readPolyline(data);
             this.closePath();
+        }else if( mode === "polyline" ){
+            this.readPolyline(data);
+        }
+    }
+
+    readPolyline(data){
+        let params = "";
+        for( let i = 0 ; i < data.length ; i++ ){
+            if( data[i] === "-" ){ params += " "; }
+            params += data[i];
+        }
+        var data = params.split(/,|\s/).filter((t)=>{return t !== ""}).map((d)=>{
+            return Number(d);
+        });
+        this.moveTo( data[0], data[1], true );
+        for( let i = 2 ; i < data.length ; i+=2 ){
+            this.lineTo( data[i], data[i+1], true );
         }
     }
 
@@ -700,4 +706,3 @@ Path.PointBase.ClosePath = class extends Path.PointBase.LineTo {
     }
 
 }
-

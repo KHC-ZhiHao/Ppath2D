@@ -2,7 +2,9 @@
 
 [![NPM Version][npm-image]][npm-url]
 
-Ppath2D是一個javascript canvas path render函式庫。
+#### 中文大綱
+
+Ppath2D是一個javascript canvas path render 模塊
 
 P代表position，本庫不僅能夠在cavnas 2d繪製路徑，更能取得路徑的定位與方向，發掘更多有趣的應用與效果。
 
@@ -10,7 +12,17 @@ P代表position，本庫不僅能夠在cavnas 2d繪製路徑，更能取得路�
 
 >此module並未使用Path2D渲染，而是使用更底層的計算方法繪製圖形，不僅是為了降低瀏覽器支援問題，更希望能夠使用在繪圖以外的應用。
 
-## 安裝
+#### English outline
+
+Ppath2D is a javascript canvas path render module.
+
+P represent position, This module not only render 2d path, More capable get position and directio on the path.
+
+[Flying ants under the street lights demo.](https://khc-zhihao.github.io/Ppath2D/index.html)
+
+>This module no use Path2D API, But use pure calculation render graphics, In order to lower the problem of browser support and hope to use beside render graphic.
+
+## 安裝 (Install)
 
 webpack
 
@@ -24,9 +36,9 @@ html
 <script src="https://cdn.rawgit.com/KHC-ZhiHao/Ppath2D/2175b7a6/dist/index.js"></script>
 ```
 
-## 快速上手
+## 快速上手 (How to use)
 
-快速的在畫布上繪製一條斜線
+快速的在畫布上繪製一條斜線(Draw a line)
 
 html:
 ```html
@@ -50,7 +62,7 @@ line.render(context);
 context.stroke();
 ```
 
-### 一樣的直線，使用SVG d語法
+### 一樣的直線，使用SVG d語法 (Draw a line for d)
 
 javascript
 ```js
@@ -59,7 +71,7 @@ line.render(context);
 context.stroke();
 ```
 
-Ppath2D的路徑可以轉換成d語法
+Ppath2D的路徑可以轉換成d語法(Ppath2D to d string)
 
 ```js
 let line = new Ppath2D();
@@ -67,7 +79,7 @@ line.moveTo(10,10).lineTo(200,200);
 line.toPathString() // "M10,10 L200,200"
 ```
 
-### 加入路徑
+### 加入路徑 (Add Path)
 
 可於尾端加入一條 *Ppath2D* 的路徑
 
@@ -76,7 +88,7 @@ let line = new Ppath2D('m10,10 l200,200');
     line.addPath(new Ppath2D('m0,0 l200,200'));
 ```
 
-### 若要解讀多變形，將第二個參數傳入"polygon"
+### 若要解讀多邊形，將第二個參數傳入"polygon" (read Polygon)
 
 javascript
 ```js
@@ -88,27 +100,34 @@ line.render(context);
 context.fill();
 ```
 
-### 獲取定位
+### 若要解讀多折線，將第二個參數傳入"polyline" (read Polyline)
 
-傳入一為 **0~1** 的 t 值，及代表起頭與尾巴的位置
+javascript
+```js
+let line = new Ppath2D(`0.5,0.5 211.5,0.5 0.5,81.5 0.5,227.5`, "polyline");
+line.render(context);
+context.stroke();
+```
+
+### 獲取定位 (Get position)
 
 ```js
 let p = new Ppath2D('m10,10 l200,200');
 let position = p.getLinePosition(0.5);
+//getLinePosition(t) t is begin to finish (0~1)
 //position.x === position.y === 110
 ```
 
-### 獲取方向
-
-傳入一為 **0~1** 的 t 值，回傳其線路繪製目前的角度
+### 獲取方向 (Get direction)
 
 ```js
 let p = new Ppath2D('m10,10 l200,200');
 let direction = p.getDirection(0.5); 
-// direction === -225
+//getDirection(t) t is begin to finish (0~1)
+//direction === -225
 ```
 
-## 描繪函數
+## 描繪函數 (Draw path function)
 
 你可以藉由下列的描繪函數建立你的路徑
 
@@ -123,18 +142,9 @@ let direction = p.getDirection(0.5);
 * arc(rx,ry,rotation,large,sweep,x,y,absolute)
 * closePath()
 
-## 建議
+## 參考(Reference)
 
-#### 搭配canvas函式庫
-雖然可以直接藉由canvas繪製複雜的線條，但如果要實現SVG animateMotion的效果，落實在具有sprite概念上的函式庫會容易許多。
-
-#### 用繪圖軟體產生d語法來取代描繪函數
-
-使用描繪函數建立路徑是非常不切實際的，善用一個向量圖形軟體來產生d語法，來避免折損自己的右腦才是明智之舉。
-
-## 感謝
-
-[公式參考](https://ericeastwood.com/blog/25/curves-and-arcs-quadratic-cubic-elliptical-svg-implementations)
+[Mathematical formula](https://ericeastwood.com/blog/25/curves-and-arcs-quadratic-cubic-elliptical-svg-implementations)
 
 [npm-image]: https://img.shields.io/npm/v/ppath2d.svg
 [npm-url]: https://npmjs.org/package/ppath2d

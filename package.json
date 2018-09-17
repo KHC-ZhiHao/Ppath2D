@@ -1,6 +1,6 @@
 {
   "name": "ppath2d",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Can get position and direction of svg path.",
   "main": "./dist/index.js",
   "scripts": {
