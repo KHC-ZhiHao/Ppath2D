@@ -20,7 +20,7 @@ P represent position, This module not only render 2d path, More capable get posi
 
 [Flying ants under the street lights demo.](https://khc-zhihao.github.io/Ppath2D/index.html)
 
->This module no use Path2D API, But use pure calculation render graphics, In order to lower the problem of browser support and hope to use beside render graphic.
+>This module no use Path2D API, But use basic calculation render graphics, In order to lower the problem of browser support and hope to use beside render graphic.
 
 ## 安裝 (Install)
 
