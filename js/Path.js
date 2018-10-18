@@ -417,8 +417,8 @@ Path.PointBase.Curve = class extends Path.PointBase {
         var previousDotY = 0;
         for ( let i = 0; i <= steps ; i++ ) {
             t = i / steps;
-            x = this.getPoint( t, this.sx, this.p1x, this.p2x, this.ex);
-            y = this.getPoint( t, this.sy, this.p1y, this.p2y, this.ey);
+            x = this.getPoint( t, this.sx, this.p1x, this.p2x, this.ex );
+            y = this.getPoint( t, this.sy, this.p1y, this.p2y, this.ey );
             if( i > 0 ) {
                 var diffX = x - previousDotX;
                 var diffY = y - previousDotY;

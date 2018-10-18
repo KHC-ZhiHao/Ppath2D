@@ -33,7 +33,7 @@ $ npm i ppath2d
 html
 
 ```html
-<script src="https://cdn.rawgit.com/KHC-ZhiHao/Ppath2D/2175b7a6/dist/index.js"></script>
+<script src="https://rawcdn.githack.com/KHC-ZhiHao/Ppath2D/master/dist/index.js"></script>
 ```
 
 ## 快速上手 (How to use)
@@ -135,7 +135,7 @@ let direction = p.getDirection(0.5);
 * lineTo(x,y,absolute)
 * horizontalLineTo(x,absolute)
 * verticalLineTo(y,absolute)
-* curve(x1,y1,x2,y2,absolute)
+* curve(x1,y1,x2,y2,x,y,absolute)
 * quadraticBezierCurve(x1,y1,x,y,absolute)
 * smoothCurve(x2,y2,x,y,absolute)
 * smoothQuadraticBezierCurve(x,y,absolute)
