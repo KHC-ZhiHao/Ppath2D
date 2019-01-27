@@ -221,6 +221,7 @@ let bgc = document.createElement("canvas");
 	bgc.height = "1080";
 
 let pathFly = new Ppath2D(path.fly);
+    pathFly.setCache(true)
 let pathBase = new Ppath2D(path.base);
 let pathLamp = new Ppath2D(path.lamp);
 let pathGirl = new Ppath2D(path.girl);
@@ -258,12 +259,11 @@ stageContext.fillStyle = light;
 
 let deg360 = 2 * Math.PI;
 
-for( let i = 0 ; i < 10 ; i++ ){
-	ants[i] = i / 10;
+for( let i = 0 ; i < 20 ; i++ ){
+	ants[i] = i / 20;
 }
 
 function update(){
-    
     stageContext.clearRect(0, 0, 1920, 1080);
     
     for( let i = 0 ; i < ants.length ; i++ ){
@@ -276,7 +276,6 @@ function update(){
     canvasContext.drawImage(bgc,0,0);
     canvasContext.drawImage(stage,0,0);
 	requestAnimationFrame(update);
-    
 }
 
 update();

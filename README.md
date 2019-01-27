@@ -11,6 +11,7 @@ P代表position，本庫不僅能夠在cavnas 2d繪製路徑，更能取得路�
 [使用路徑模擬路燈底下的飛蟻](https://khc-zhihao.github.io/Ppath2D/index.html)
 
 >此module並未使用Path2D渲染，而是使用更底層的計算方法繪製圖形，不僅是為了降低瀏覽器支援問題，更希望能夠使用在繪圖以外的應用。
+>因此如果只是單純需要渲染路徑，使用Path2D API，它快到不行。
 
 #### English outline
 
@@ -21,6 +22,7 @@ P represent position, This module not only render 2d path, More capable get posi
 [Flying ants under the street lights demo.](https://khc-zhihao.github.io/Ppath2D/index.html)
 
 >This module no use Path2D API, But use basic calculation render graphics, In order to lower the problem of browser support and hope to use beside render graphic.
+>So if you just need to render the path, use the Path2D API.
 
 ## 安裝 (Install)
 
@@ -60,6 +62,18 @@ let line = new Ppath2D();
 line.moveTo(10,10).lineTo(200,200);
 line.render(context);
 context.stroke();
+```
+
+### 快取模式(use cache)
+
+如果某些路徑需要大量的運算資源，這是空間換取時間的接口。
+
+Use more memory get more fast.
+
+```js
+let line = new Ppath2D();
+line.moveTo(10,10).lineTo(200,200);
+line.setCache(true)
 ```
 
 ### 一樣的直線，使用SVG d語法 (Draw a line for d)
@@ -145,6 +159,21 @@ let direction = p.getDirection(0.5);
 ## 參考(Reference)
 
 [Mathematical formula](https://ericeastwood.com/blog/25/curves-and-arcs-quadratic-cubic-elliptical-svg-implementations)
+
+## Version Log
+
+### 1.0.7
+
+#### 中文
+
+* getLinePosition太吃資源了，可以用快取模式來降低運算成本。
+* 修正了反覆計算的愚蠢錯誤，現在的建立速度比之前的版本快上一半。
+* 做了一些原生系統支援，如果瀏覽器支援GeometryElement的話，建立大概會再快個40倍。
+
+#### english
+* getLinePosition too slow, you can use cache mode to reduce the cost of computing.
+* Fixed a stupid bug in repeated calculations, which initialization step is about half faster than the previous version.
+* Do some compatibility system support. If the browser supports GeometryElement, will very fast.
 
 [npm-image]: https://img.shields.io/npm/v/ppath2d.svg
 [npm-url]: https://npmjs.org/package/ppath2d

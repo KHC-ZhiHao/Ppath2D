@@ -59,12 +59,19 @@ class Path extends ModuleBase {
         super("Path");
         this.points = [];
         this.length = 0;
+        this.cacheMode = false;
+        this.siteCaches = [];
         if( data ){
             let type = typeof data;
             if( type === "string" ){
                 this.compile( data.trim(), mode );
             }
         }
+    }
+
+    setCache(enable) {
+        this.cacheMode = !!enable
+        this.siteCaches = []
     }
 
     compile( data, mode = "path" ){
@@ -136,7 +143,7 @@ class Path extends ModuleBase {
     eachPoint(callback){
         let len = this.points.length;
         for( let i = 0 ; i < len ; i++ ){
-            callback(this.points[i]);
+            callback(this.points[i], i);
         }
     }
 
@@ -156,8 +163,8 @@ class Path extends ModuleBase {
 
     refresh(){
         this.length = 0;
-        this.eachPoint((point)=>{
-            point.refresh();
+        this.siteCaches = [];
+        this.eachPoint((point, index)=>{
             this.length += point.length;
         });
     }
@@ -182,12 +189,16 @@ class Path extends ModuleBase {
     }
 
     getLastPosition(){
-        let p = this.points.length !== 0 ? this.points.slice(-1)[0].getLastPosition() : null;
-        return p ? p : { x : 0, y : 0 };
+        let p = this.points[this.points.length - 1]
+        return p ? p.getLastPosition() : { x : 0, y : 0 };
     }
 
     getLinePosition(t){
-        let target = null;
+        if (this.cacheMode && this.siteCaches[t]) {
+            return this.siteCaches[t]
+        }
+        let target = null
+        let site = null
         let dis = this.length * t;
         let len = this.points.length;
         for( let i = 0 ; i < len ; i++ ){
@@ -201,75 +212,79 @@ class Path extends ModuleBase {
             }
         }
         if( target ){
-            return target.getLinePosition( dis / target.length );
+            site = target.getLinePosition( dis / target.length );
         }else{
-            return this.getLastPosition();
+            site = this.getLastPosition();
         }
+        if (this.cacheMode && this.siteCaches.length <= 2000) {
+            this.siteCaches[t] = site
+        }
+        return site
     }
 
     getDirection(t){
         let to = t + 0.01;
         let p1 = this.getLinePosition(t);
         let p2 = this.getLinePosition(to);
-        return Path.Math.getAngle( p1.x, p1.y, p2.x, p2.y ) - 270;
+        return Supports.getAngle( p1.x, p1.y, p2.x, p2.y ) - 270;
     }
 
     moveTo( x, y, abs = false ){
-        this.addPoint( new Path.PointBase.MoveTo( this, this.getLastPoint(), x, y, abs ) );
+        this.addPoint( new PointBase.MoveTo( this, this.getLastPoint(), x, y, abs ) );
         return this;
     }
 
     lineTo( x, y, abs = false ){
-        this.addPoint( new Path.PointBase.LineTo( this, this.getLastPoint(), x, y, abs ) );
+        this.addPoint( new PointBase.LineTo( this, this.getLastPoint(), x, y, abs ) );
         return this;
     }
 
     curve( x1, y1, x2, y2, x, y, abs = false ){
-        this.addPoint( new Path.PointBase.Curve( this, this.getLastPoint(), x1, y1, x2, y2, x ,y, abs ) );
+        this.addPoint( new PointBase.Curve( this, this.getLastPoint(), x1, y1, x2, y2, x ,y, abs ) );
         return this;
     }
 
     quadraticBezierCurve( x1, y1, x, y, abs = false ){
-        this.addPoint( new Path.PointBase.QuadraticBezierCurve( this, this.getLastPoint(), x1, y1, x , y, abs ) );
+        this.addPoint( new PointBase.QuadraticBezierCurve( this, this.getLastPoint(), x1, y1, x , y, abs ) );
         return this;
     }
 
     smoothCurve( x2, y2, x, y, abs = false ){
-        this.addPoint( new Path.PointBase.SmoothCurve( this, this.getLastPoint(), x2, y2, x , y, abs ) );
+        this.addPoint( new PointBase.SmoothCurve( this, this.getLastPoint(), x2, y2, x , y, abs ) );
         return this;
     }
 
     smoothQuadraticBezierCurve( x, y, abs = false ){
-        this.addPoint(new Path.PointBase.SmoothQuadraticBezierCurve( this, this.getLastPoint(), x, y, abs ));
+        this.addPoint( new PointBase.SmoothQuadraticBezierCurve( this, this.getLastPoint(), x, y, abs ) );
         return this;
     }
 
     horizontalLineTo( x, abs = false ){
-        this.addPoint(new Path.PointBase.HorizontalLineTo( this, this.getLastPoint(), x, abs ));
+        this.addPoint( new PointBase.HorizontalLineTo( this, this.getLastPoint(), x, abs ) );
         return this;
     }
 
     verticalLineTo( y, abs = false ){
-        this.addPoint(new Path.PointBase.VerticalLineTo( this, this.getLastPoint(), y, abs ));
+        this.addPoint( new PointBase.VerticalLineTo( this, this.getLastPoint(), y, abs ) );
         return this;
     }
 
     arc( rx, ry, rotation, large, sweep, x, y, abs = false ){
-        this.addPoint(new Path.PointBase.Arc( this, this.getLastPoint(), rx, ry, rotation, large, sweep, x, y, abs ));
+        this.addPoint(new PointBase.Arc( this, this.getLastPoint(), rx, ry, rotation, large, sweep, x, y, abs ));
         return this;
     }
 
     closePath(){
         let target = this.points.filter((p)=>{
-            return p instanceof Path.PointBase.MoveTo;
+            return p instanceof PointBase.MoveTo;
         }).pop();
-        this.addPoint(new Path.PointBase.ClosePath(this, this.getLastPoint(), target));
+        this.addPoint(new PointBase.ClosePath(this, this.getLastPoint(), target));
         return this;
     }
 
 }
 
-Path.Math = class {
+class Supports {
 
     static getDistance( x, y, ax, ay ){
         return Math.sqrt(Math.pow(( ax - x ), 2) + Math.pow(( ay - y ), 2))
@@ -281,16 +296,21 @@ Path.Math = class {
         return angle > 0 ? angle : 360 + angle;
     }
 
+    static getSvgLength(d) {
+        const pathElement = document.createElementNS('http://www.w3.org/2000/svg',"path"); 
+        pathElement.setAttributeNS(null, 'd', d);
+        return pathElement.getTotalLength();
+    }
+
 }
 
-Path.PointBase = class {
+class PointBase {
 
     constructor( path, parent, absolute = false ){
         this.error = null;
         this.absolute = !!absolute;
         this.initData();
         this.resetReference( path, parent );
-        this.refresh();
     }
 
     get sx(){ return this.parent.ex }
@@ -331,17 +351,20 @@ Path.PointBase = class {
         };
     }
 
-    reset( options ){
+    resetData( options, refreshPath = false ){
         for( let key in options ){
             if( this.data[key] != null ){
                 this[key] = options[key];
             }
         }
-        this.refresh();
+        this.refresh(refreshPath);
     }
 
-    refresh(){
+    refresh(refreshPath){
         this.length = this.getLength();
+        if( refreshPath ){
+            this.path.refreshLength()
+        }
     }
 
     getLength(){
@@ -358,11 +381,11 @@ Path.PointBase = class {
 
 }
 
-Path.PointBase.MoveTo = class extends Path.PointBase {
+PointBase.MoveTo = class extends PointBase {
 
     constructor( path, parent, x, y, absolute ){
         super( path, parent, absolute );
-        this.reset({
+        this.resetData({
             ex : x,
             ey : y,
         });
@@ -385,11 +408,11 @@ Path.PointBase.MoveTo = class extends Path.PointBase {
 
 }
 
-Path.PointBase.LineTo = class extends Path.PointBase {
+PointBase.LineTo = class extends PointBase {
 
     constructor( path, parent, x, y, absolute ){
         super( path, parent, absolute );
-        this.reset({
+        this.resetData({
             ex : x,
             ey : y,
         });
@@ -411,12 +434,12 @@ Path.PointBase.LineTo = class extends Path.PointBase {
     }
 
     getLength(){
-        return Path.Math.getDistance( this.sx, this.sy, this.ex, this.ey );
+        return Supports.getDistance( this.sx, this.sy, this.ex, this.ey );
     }
 
 }
 
-Path.PointBase.HorizontalLineTo = class extends Path.PointBase.LineTo {
+PointBase.HorizontalLineTo = class extends PointBase.LineTo {
 
     constructor( path, parent, x, absolute ){
         super( path, parent, x, absolute ? parent.ey : 0, absolute );
@@ -428,7 +451,7 @@ Path.PointBase.HorizontalLineTo = class extends Path.PointBase.LineTo {
 
 }
 
-Path.PointBase.VerticalLineTo = class extends Path.PointBase.LineTo {
+PointBase.VerticalLineTo = class extends PointBase.LineTo {
 
     constructor( path, parent, y, absolute ){
         super( path, parent, absolute ? parent.ex : 0, y, absolute );
@@ -440,11 +463,11 @@ Path.PointBase.VerticalLineTo = class extends Path.PointBase.LineTo {
 
 }
 
-Path.PointBase.Curve = class extends Path.PointBase {
+PointBase.Curve = class extends PointBase {
 
     constructor( path, parent, x1, y1, x2, y2, x, y, absolute = false ){
         super( path, parent, absolute );
-        this.reset({
+        this.resetData({
             p1x : x1,
             p1y : y1,
             p2x : x2,
@@ -463,6 +486,9 @@ Path.PointBase.Curve = class extends Path.PointBase {
     }
 
     getLength(){
+        if (Compatibility.GeometryElement) {
+            return Supports.getSvgLength(`M${this.sx},${this.sy}` + this.toPathString())
+        }
         var x = 0;
         var y = 0;
         var t = 0;
@@ -502,7 +528,7 @@ Path.PointBase.Curve = class extends Path.PointBase {
 
 }
 
-Path.PointBase.QuadraticBezierCurve = class extends Path.PointBase.Curve {
+PointBase.QuadraticBezierCurve = class extends PointBase.Curve {
     
     constructor( path, parent, p1x, p1y, ex, ey, absolute = false ){
         super( path, parent, p1x, p1y, p1x, p1y, ex, ey, absolute );
@@ -528,7 +554,7 @@ Path.PointBase.QuadraticBezierCurve = class extends Path.PointBase.Curve {
 
 }
 
-Path.PointBase.SmoothCurve = class extends Path.PointBase.Curve {
+PointBase.SmoothCurve = class extends PointBase.Curve {
     
     constructor( path, parent, p2x, p2y, ex, ey, absolute = false ){
         super( path, parent, 0, 0, p2x, p2y, ex, ey, absolute );
@@ -552,7 +578,7 @@ Path.PointBase.SmoothCurve = class extends Path.PointBase.Curve {
 
 }
 
-Path.PointBase.SmoothQuadraticBezierCurve = class extends Path.PointBase.Curve {
+PointBase.SmoothQuadraticBezierCurve = class extends PointBase.Curve {
     
     constructor( path, parent, ex, ey, absolute = false ){
         super( path, parent, 0, 0, 0, 0, ex, ey, absolute );
@@ -587,7 +613,7 @@ Path.PointBase.SmoothQuadraticBezierCurve = class extends Path.PointBase.Curve {
 
 }
 
-Path.PointBase.Arc = class extends Path.PointBase{
+PointBase.Arc = class extends PointBase{
 
     constructor( path, parent, rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x, y, absolute = false ){
         super( path, parent, absolute );
@@ -596,19 +622,19 @@ Path.PointBase.Arc = class extends Path.PointBase{
         this.sweepFlag = sweepFlag;
         this.largeArcFlag = largeArcFlag;
         this.xAxisRotation = xAxisRotation;
-        this.reset({
+        this.resetData({
             ex : x,
-            ey : y,
+            ey : y
         });
     }
 
-    reset(options){
+    resetData(options){
         this.rx = options.rx ? options.rx : this.rx;
         this.ry = options.ry ? options.ry : this.ry;
         this.sweepFlag = options.sweepFlag ? options.sweepFlag : this.sweepFlag;
         this.largeArcFlag = options.largeArcFlag ? options.largeArcFlag : this.largeArcFlag;
         this.xAxisRotation = options.xAxisRotation ? options.xAxisRotation : this.xAxisRotation;
-        super.reset(options);
+        super.resetData(options);
     }
 
     getStep(){
@@ -725,10 +751,13 @@ Path.PointBase.Arc = class extends Path.PointBase{
     }
 
     getDistance( p1, p2 ){
-        return Path.Math.getDistance( p1.x, p1.y, p2.x, p2.y );
+        return Supports.getDistance( p1.x, p1.y, p2.x, p2.y );
     }
 
     getLength(){
+        if (Compatibility.GeometryElement) {
+            return Supports.getSvgLength(`M${this.sx},${this.sy}` + this.toPathString())
+        }
         var steps = this.getStep();
         var resultantArcLength = 0;
         var prevPoint = this.getLinePosition(0);
@@ -746,7 +775,7 @@ Path.PointBase.Arc = class extends Path.PointBase{
 
 }
 
-Path.PointBase.ClosePath = class extends Path.PointBase.LineTo {
+PointBase.ClosePath = class extends PointBase.LineTo {
 
     constructor( path, parent, target ){
         super( path, parent, target.ex, target.ey, target.absolute );
@@ -761,6 +790,19 @@ Path.PointBase.ClosePath = class extends Path.PointBase.LineTo {
     }
 
 }
+
+const Compatibility = {
+    Path2D: !!Path2D,
+    GeometryElement: (()=> {
+        try {
+            Supports.getSvgLength('M0,0')
+            return true
+        } catch (error) {
+            return false
+        }
+    })()
+}
+
 
             let __re = Path;
             
