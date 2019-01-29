@@ -175,5 +175,15 @@ let direction = p.getDirection(0.5);
 * Fixed a stupid bug in repeated calculations, which initialization step is about half faster than the previous version.
 * Do some compatibility system support. If the browser supports GeometryElement, will very fast.
 
+### 1.0.8
+
+#### 中文
+
+* 引入了跳階演算法，getLinePosition與getDirection速度提升快10倍。
+
+#### english
+
+* Introduced a jump algorithm, getLinePosition and getDirection very faster now.
+
 [npm-image]: https://img.shields.io/npm/v/ppath2d.svg
 [npm-url]: https://npmjs.org/package/ppath2d

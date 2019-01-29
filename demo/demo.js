@@ -1,3 +1,4 @@
+
 const path = {
 	"base" : `
        M656,949v-31H290.179c0.945-0.299,1.78-0.707,2.375-1.324c5.189-5.391,9.742-11.417,14.317-17.369
@@ -162,7 +163,7 @@ const path = {
 		c0.314-0.392,0.706-1.255,0.862-1.882c0.157-0.666,0.431-1.882,0.627-2.744c0.157-0.902,0.784-1.96,1.451-2.548
 		c1.49-1.372,3.058-3.45,5.645-7.449c3.803-5.802,15.956-21.248,16.622-21.013C844.133,794.233,844.368,795.605,844.486,797.213z
 	`,
-        
+
     "fly" : `
         M395.779,528.87c-13.889,4.042-26.034-15.079-19.863-28.162
         s22.957-18.01,37.243-15.738c14.286,2.272,27.008,9.977,40.105,16.119s28.006,10.866,41.876,6.762
@@ -221,7 +222,6 @@ let bgc = document.createElement("canvas");
 	bgc.height = "1080";
 
 let pathFly = new Ppath2D(path.fly);
-    pathFly.setCache(true)
 let pathBase = new Ppath2D(path.base);
 let pathLamp = new Ppath2D(path.lamp);
 let pathGirl = new Ppath2D(path.girl);
@@ -256,7 +256,6 @@ let light = stageContext.createRadialGradient( x, y, r / 5, x, y, r );
     light.addColorStop(1, 'rgba(227,227,227,0)');
 
 stageContext.fillStyle = light;
-
 let deg360 = 2 * Math.PI;
 
 for( let i = 0 ; i < 20 ; i++ ){
@@ -265,13 +264,11 @@ for( let i = 0 ; i < 20 ; i++ ){
 
 function update(){
     stageContext.clearRect(0, 0, 1920, 1080);
-    
     for( let i = 0 ; i < ants.length ; i++ ){
         ants[i] = (ants[i] + 0.001) % 1;
         let position = pathFly.getLinePosition(ants[i]);
-    	stageContext.fillRect( position.x, position.y, 5, 5 );
+        stageContext.fillRect( position.x, position.y, 3, 3 );
     }
-    
     canvasContext.clearRect(0, 0, 1920, 1080);
     canvasContext.drawImage(bgc,0,0);
     canvasContext.drawImage(stage,0,0);

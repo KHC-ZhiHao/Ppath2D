@@ -6,6 +6,7 @@ class Path extends ModuleBase {
         this.length = 0;
         this.cacheMode = false;
         this.siteCaches = [];
+        this.lengthCaches = [];
         if( data ){
             let type = typeof data;
             if( type === "string" ){
@@ -88,12 +89,13 @@ class Path extends ModuleBase {
     eachPoint(callback){
         let len = this.points.length;
         for( let i = 0 ; i < len ; i++ ){
-            callback(this.points[i], i);
+            callback(this.points[i]);
         }
     }
 
     addPoint(point){
         if( point.error ){ this.systemError( "addPoint", point.error, point ); }
+        this.lengthCaches.push(this.length)
         this.points.push(point);
         this.length += point.length;
     }
@@ -109,7 +111,9 @@ class Path extends ModuleBase {
     refresh(){
         this.length = 0;
         this.siteCaches = [];
-        this.eachPoint((point, index)=>{
+        this.lengthCaches = []
+        this.eachPoint((point)=>{
+            this.lengthCaches.push(this.length)
             this.length += point.length;
         });
     }
@@ -146,7 +150,20 @@ class Path extends ModuleBase {
         let site = null
         let dis = this.length * t;
         let len = this.points.length;
-        for( let i = 0 ; i < len ; i++ ){
+        let index = 0
+        if (this.lengthCaches.length > 10) {
+            let range = 10
+            let length = Math.floor(this.lengthCaches.length * (1 / range))
+            for (let i = 1; i < range; i++) {
+                if (dis <= this.lengthCaches[i * length]) {
+                    break;
+                }
+                index = (i - 1) * length
+            }
+            dis -= this.lengthCaches[index]
+        }
+
+        for( let i = index ; i < len ; i++ ){
             if( dis <= this.points[i].length ){
                 if( this.points[i] ){
                     target = this.points[i];
@@ -156,6 +173,7 @@ class Path extends ModuleBase {
                 dis -= this.points[i].length;
             }
         }
+
         if( target ){
             site = target.getLinePosition( dis / target.length );
         }else{
@@ -253,31 +271,39 @@ class PointBase {
 
     constructor( path, parent, absolute = false ){
         this.error = null;
-        this.absolute = !!absolute;
         this.initData();
         this.resetReference( path, parent );
+        this.offset = { x: 0, y: 0 }
+        this.absolute = !!absolute;
+        this._absolute = !!absolute
+    }
+
+    set absolute(absolute) {
+        this._absolute = !!absolute
+        this.offset.x = absolute ? 0 : this.sx
+        this.offset.y = absolute ? 0 : this.sy
     }
 
     get sx(){ return this.parent.ex }
     get sy(){ return this.parent.ey }
 
-    get ex(){ return this.absolute ? this.data.ex : this.data.ex + this.sx; }
-    set ex(val){ this.data.ex = val; }
+    get ex(){ return this.data.ex + this.offset.x }
+    set ex(val){ this.data.ex = val }
 
-    get ey(){ return this.absolute ? this.data.ey : this.data.ey + this.sy; }
-    set ey(val){ this.data.ey = val; }
+    get ey(){ return this.data.ey + this.offset.y }
+    set ey(val){ this.data.ey = val }
 
-    get p1x(){ return this.absolute ? this.data.p1x : this.data.p1x + this.sx; }
-    set p1x(val){ this.data.p1x = val; }
+    get p1x(){ return this.data.p1x + this.offset.x }
+    set p1x(val){ this.data.p1x = val }
 
-    get p1y(){ return this.absolute ? this.data.p1y : this.data.p1y + this.sy; }
-    set p1y(val){ this.data.p1y = val; }
+    get p1y(){ return this.data.p1y + this.offset.y }
+    set p1y(val){ this.data.p1y = val }
 
-    get p2x(){ return this.absolute ? this.data.p2x : this.data.p2x + this.sx; }
-    set p2x(val){ this.data.p2x = val; }
+    get p2x(){ return this.data.p2x + this.offset.x }
+    set p2x(val){ this.data.p2x = val }
 
-    get p2y(){ return this.absolute ? this.data.p2y : this.data.p2y + this.sy; }
-    set p2y(val){ this.data.p2y = val; }
+    get p2y(){ return this.data.p2y + this.offset.y }
+    set p2y(val){ this.data.p2y = val }
 
     resetReference( path, parent ){
         this.path = path;
@@ -344,11 +370,19 @@ PointBase.MoveTo = class extends PointBase {
         return `M${this.ex},${this.ey}`;
     }
     
-    getLinePosition(t){
+    getLinePosition(){
         return { 
             x : this.ex,
             y : this.ey,
         }
+    }
+
+    getPositionX() {
+        return this.ex
+    }
+
+    getPositionY() {
+        return this.ey
     }
 
 }
