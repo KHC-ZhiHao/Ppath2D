@@ -4,7 +4,9 @@
   "description": "Can get position and direction of svg path.",
   "main": "./dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "nyc mocha --timeout 2000",
+    "build": "nyc mocha && cross-env webpack --progress --hide-modules",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
@@ -20,5 +22,27 @@
   "bugs": {
     "url": "https://github.com/KHC-ZhiHao/Ppath2D/issues"
   },
-  "homepage": "https://github.com/KHC-ZhiHao/Ppath2D#readme"
+  "homepage": "https://github.com/KHC-ZhiHao/Ppath2D#readme",
+  "dependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "babel-loader": "^8.0.6",
+    "canvas": "^2.6.0",
+    "chai": "^4.2.0",
+    "cross-env": "^5.2.0",
+    "eslint": "^6.0.1",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-loader": "^2.1.2",
+    "eslint-plugin-import": "^2.18.0",
+    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "mocha": "^6.1.4",
+    "webpack": "^4.35.0",
+    "webpack-cli": "^3.3.5"
+  },
+  "devDependencies": {
+    "coveralls": "^3.0.6",
+    "nyc": "^14.1.1"
+  }
 }

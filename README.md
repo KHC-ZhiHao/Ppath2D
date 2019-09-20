@@ -8,7 +8,9 @@ Ppath2D是一個javascript canvas path render 模塊
 
 P代表position，本庫不僅能夠在cavnas 2d繪製路徑，更能取得路徑的定位與方向，發掘更多有趣的應用與效果。
 
-[使用路徑模擬路燈底下的飛蟻](https://khc-zhihao.github.io/Ppath2D/index.html)
+[使用路徑模擬路燈底下的飛蟻](https://khc-zhihao.github.io/Ppath2D/demo/index.html)
+
+[線上模擬工具](https://khc-zhihao.github.io/Ppath2D/demo/try.html)
 
 >此module並未使用Path2D渲染，而是使用更底層的計算方法繪製圖形，不僅是為了降低瀏覽器支援問題，更希望能夠使用在繪圖以外的應用。
 >因此如果只是單純需要渲染路徑，使用Path2D API，它快到不行。
@@ -19,7 +21,9 @@ Ppath2D is a javascript canvas path render module.
 
 P represent position, This module not only render 2d path, More capable get position and directio on the path.
 
-[Flying ants under the street lights demo.](https://khc-zhihao.github.io/Ppath2D/index.html)
+[Flying ants under the street lights demo.](https://khc-zhihao.github.io/Ppath2D/demo/index.html)
+
+[Online Editor](https://khc-zhihao.github.io/Ppath2D/demo/try.html)
 
 >This module no use Path2D API, But use basic calculation render graphics, In order to lower the problem of browser support and hope to use beside render graphic.
 >So if you just need to render the path, use the Path2D API.
