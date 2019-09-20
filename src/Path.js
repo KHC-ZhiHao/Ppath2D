@@ -16,11 +16,6 @@ class Path extends ModuleBase {
         }
     }
 
-    setCache(enable) {
-        this.cacheMode = !!enable
-        this.siteCaches = []
-    }
-
     compile(data, mode = 'path') {
         let list = {
             a: 'arc',
@@ -48,7 +43,7 @@ class Path extends ModuleBase {
                 }
                 params[index] += data[i]
             }
-            this.each(params, (param) => {
+            for (let param of params) {
                 let pt = param.trim()
                 let key = pt.slice(0, 1)
                 let data = pt.slice(1).split(/,|\s/).filter((t) => { return t !== '' }).map((d) => {
@@ -63,7 +58,7 @@ class Path extends ModuleBase {
                 } else {
                     this.systemError('compile', 'Key name not found', key)
                 }
-            })
+            }
         } else if (mode === 'polygon') {
             this.readPolyline(data)
             this.closePath()
@@ -101,23 +96,25 @@ class Path extends ModuleBase {
         this.length += point.length
     }
 
-    addPath(path) {
-        if (path instanceof Path) {
-            this.compile(path.toPathString())
-        } else {
-            this.systemError('addPath', 'Object not a Ppath2D data.', path)
-        }
+    setCache(enable) {
+        this.cacheMode = !!enable
+        this.siteCaches = []
     }
 
-    refresh() {
-        this.length = 0
-        this.siteCaches = []
-        this.lengthCaches = []
-        this.eachPoint((point) => {
-            this.lengthCaches.push(this.length)
-            this.length += point.length
-        })
+    addPath(path) {
+        this.compile(path.toPathString())
     }
+
+    // 本來目的是調整節點後刷新，但節點的操作其實有其難度
+    // refresh() {
+    //     this.length = 0
+    //     this.siteCaches = []
+    //     this.lengthCaches = []
+    //     this.eachPoint((point) => {
+    //         this.lengthCaches.push(this.length)
+    //         this.length += point.length
+    //     })
+    // }
 
     render(context) {
         context.beginPath()
@@ -319,20 +316,17 @@ class PointBase {
         }
     }
 
-    resetData(options, refreshPath = false) {
+    resetData(options) {
         for (let key in options) {
             if (this.data[key] != null) {
                 this[key] = options[key]
             }
         }
-        this.refresh(refreshPath)
+        this.refresh()
     }
 
-    refresh(refreshPath) {
+    refresh() {
         this.length = this.getLength()
-        if (refreshPath) {
-            this.path.refreshLength()
-        }
     }
 
     getLength() {
@@ -340,7 +334,10 @@ class PointBase {
     }
 
     getLastPosition() {
-        return { x: this.ex, y: this.ey }
+        return {
+            x: this.ex,
+            y: this.ey
+        }
     }
 
     getType() {
