@@ -18,35 +18,27 @@
 
 <br>
 
-#### 中文大綱
+## 摘要
 
-Ppath2D是一個javascript canvas path render 模塊
-
-P代表position，本庫不僅能夠在cavnas 2d繪製路徑，更能取得路徑的定位與方向，發掘更多有趣的應用與效果。
+Ppath2D是一個純數學的javascript路徑模組，P代表position，代表不僅能夠在cavnas 2d繪製路徑，更能取得路徑的定位與方向。
 
 [使用路徑模擬路燈底下的飛蟻](https://khc-zhihao.github.io/Ppath2D/demo/index.html)
 
 [線上模擬工具](https://khc-zhihao.github.io/Ppath2D/demo/try.html)
 
->此module並未使用Path2D渲染，而是使用更底層的計算方法繪製圖形，不僅是為了降低瀏覽器支援問題，更希望能夠使用在繪圖以外的應用。
->因此如果只是單純需要渲染路徑，使用Path2D API，它快到不行。
+## Summary
 
-#### English outline
-
-Ppath2D is a javascript canvas path render module.
-
-P represent position, This module not only render 2d path, More capable get position and directio on the path.
+Ppath2D is a pure math javascript path module, P represent position, This module not only render 2d path, More capable get position and directio on the path.
 
 [Flying ants under the street lights demo.](https://khc-zhihao.github.io/Ppath2D/demo/index.html)
 
-[Online Editor](https://khc-zhihao.github.io/Ppath2D/demo/try.html)
+[Online editor](https://khc-zhihao.github.io/Ppath2D/demo/try.html)
 
->This module no use Path2D API, But use basic calculation render graphics, In order to lower the problem of browser support and hope to use beside render graphic.
->So if you just need to render the path, use the Path2D API.
+---
 
-## 安裝 (Install)
+### 安裝 (Install)
 
-webpack
+webpack or nodejs
 
 ```bash
 $ npm i ppath2d
@@ -58,7 +50,17 @@ html
 <script src="https://rawcdn.githack.com/KHC-ZhiHao/Ppath2D/master/dist/index.js"></script>
 ```
 
-## 快速上手 (How to use)
+---
+
+### Browsers support
+
+| [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="IE / Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>IE / Edge | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Firefox | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Chrome | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_48x48.png" alt="Safari" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Safari | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari-ios/safari-ios_48x48.png" alt="iOS Safari" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>iOS Safari | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/samsung-internet/samsung-internet_48x48.png" alt="Samsung" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Samsung | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/opera/opera_48x48.png" alt="Opera" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Opera |
+| --------- | --------- | --------- | --------- | --------- | --------- | --------- |
+| IE11, Support| Support| Support| Support| Support| Support| Support
+
+---
+
+### 快速上手 (How to use)
 
 快速的在畫布上繪製一條斜線(Draw a line)
 
@@ -84,19 +86,7 @@ line.render(context)
 context.stroke()
 ```
 
-### 快取模式(use cache)
-
-如果某些路徑需要大量的運算資源，這是空間換取時間的設定。
-
-Use more memory get more fast.
-
-```js
-let line = new Ppath2D()
-line.moveTo(10,10).lineTo(200,200)
-line.setCache(true)
-```
-
-### 一樣的直線，使用SVG d語法 (Draw a line for d)
+#### 一樣的直線，使用SVG d語法 (Draw a line for d)
 
 javascript
 ```js
@@ -113,7 +103,7 @@ line.moveTo(10,10).lineTo(200,200)
 line.toPathString() // 'M10,10L210,210'
 ```
 
-### 加入路徑 (Add Path)
+#### 加入路徑 (Add Path)
 
 可於尾端加入一條 *Ppath2D* 的路徑
 
@@ -122,7 +112,7 @@ let line = new Ppath2D('m10,10 l200,200')
     line.addPath(new Ppath2D('m0,0 l200,200'))
 ```
 
-### 若要解讀多邊形，將第二個參數傳入"polygon" (read Polygon)
+#### 若要解讀多邊形，將第二個參數傳入"polygon" (read Polygon)
 
 javascript
 ```js
@@ -134,7 +124,7 @@ line.render(context)
 context.fill()
 ```
 
-### 若要解讀多折線，將第二個參數傳入"polyline" (read Polyline)
+#### 若要解讀多折線，將第二個參數傳入"polyline" (read Polyline)
 
 javascript
 ```js
@@ -143,7 +133,7 @@ line.render(context)
 context.stroke()
 ```
 
-### 獲取定位 (Get position)
+#### 獲取定位 (Get position)
 
 ```js
 let p = new Ppath2D('m10,10 l200,200')
@@ -152,7 +142,7 @@ let position = p.getLinePosition(0.5)
 //position.x === position.y === 110
 ```
 
-#### 獲取終點 (Get Last Position)
+##### 獲取終點 (Get Last Position)
 
 ```js
 let p = new Ppath2D('m10,10 l200,200')
@@ -160,7 +150,7 @@ let position = p.getLastPosition()
 //position.x === position.y === 210
 ```
 
-### 獲取方向 (Get direction)
+#### 獲取方向 (Get direction)
 
 ```js
 let p = new Ppath2D('m10,10 l200,200')
@@ -169,7 +159,9 @@ let direction = p.getDirection(0.5)
 //direction === -225
 ```
 
-## 描繪函數 (Draw path method)
+---
+
+### 描繪函數 (Draw path method)
 
 你可以藉由下列的描繪函數建立你的路徑
 
@@ -183,6 +175,22 @@ let direction = p.getDirection(0.5)
 * smoothQuadraticBezierCurve(x,y,absolute)
 * arc(rx,ry,rotation,large,sweep,x,y,absolute)
 * closePath()
+
+---
+
+### 快取模式(use cache)
+
+如果某些路徑需要大量的運算資源，這是空間換取時間的設定。
+
+Use more memory get more fast.
+
+```js
+let line = new Ppath2D()
+line.moveTo(10,10).lineTo(200,200)
+line.setCache(true)
+```
+
+---
 
 ## 關於Nodejs (About nodejs)
 
@@ -203,7 +211,9 @@ let buffer = canvas.toBuffer()
 fs.writeFileSync('./line.png', buffer)
 ```
 
-## 參考(Reference)
+---
+
+### 參考(Reference)
 
 [Mathematical formula](https://ericeastwood.com/blog/25/curves-and-arcs-quadratic-cubic-elliptical-svg-implementations)
 

@@ -40,7 +40,7 @@ describe('#Ppath2D', () => {
         line.moveTo(10, 10).lineTo(200, 200)
         expect(line.toPathString()).to.equal('M10,10L210,210')
     })
-    it('Add Path', function() {
+    it('Add path', function() {
         let line = new Ppath2D('m10,10 l200,200')
         line.addPath(new Ppath2D('m0,0 l200,200'))
         let canvas = createCanvas(200, 200)
@@ -48,6 +48,10 @@ describe('#Ppath2D', () => {
         line.render(context)
         context.stroke()
         expect(canvas.toDataURL() === require('./base64/add-path')).to.equal(true)
+    })
+    it('Add path error', function() {
+        let line = new Ppath2D('m10,10 l200,200')
+        expect(function() { line.addPath('OuO') }).to.throw(Error)
     })
     it('polygon', function() {
         let line = new Ppath2D(`
@@ -86,10 +90,30 @@ describe('#Ppath2D', () => {
         expect(direction).to.equal(-225)
     })
     it('path', function() {
-        let line = new Ppath2D(`M20,20L100,100h20v30c20,40,20,40,20,87s60,10,20,87q30,77,21,6t70,90a100,20,0,0,1,50,30H20z`)
-        let canvas = createCanvas(200, 200)
+        let line = new Ppath2D()
+        line.moveTo(20, 20, true)
+            .lineTo(100, 100, true)
+            .horizontalLineTo(20)
+            .verticalLineTo(30)
+            .curve(20, 40, 20, 40, 20, 87)
+            .smoothCurve(60, 10, 20, 87)
+            .quadraticBezierCurve(30, 77, 21, 6)
+            .smoothQuadraticBezierCurve(10, 20)
+            .arc(100, 20, 0, 0, 1, 50, 30)
+            .horizontalLineTo(20, true)
+            .closePath()
+        let canvas = createCanvas(1000, 1000)
         let context = canvas.getContext('2d')
         line.render(context)
+        context.stroke()
         expect(canvas.toDataURL() === require('./base64/path')).to.equal(true)
+    })
+    it('path of d', function() {
+        let line = new Ppath2D(`M20,20L100,100h20v30c20,40,20,40,20,87s60,10,20,87q30,77,21,6t70,90a100,20,0,0,1,50,30H20z`)
+        let canvas = createCanvas(1000, 1000)
+        let context = canvas.getContext('2d')
+        line.render(context)
+        context.stroke()
+        expect(canvas.toDataURL() === require('./base64/path-of-d')).to.equal(true)
     })
 })
