@@ -26,7 +26,7 @@ Ppath2D is a pure math javascript path module, P represent position, This module
 
 [Online editor](https://khc-zhihao.github.io/Ppath2D/demo/try.html)
 
-[中文文件](https://github.com/KHC-ZhiHao/Ppath2D/blob/master/README_TW.md)
+[中文文檔](https://github.com/KHC-ZhiHao/Ppath2D/blob/master/README_TW.md)
 
 ---
 
