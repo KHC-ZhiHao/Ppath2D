@@ -1,6 +1,22 @@
-# Ppath2D
+<br>
+<p align="center"><img src="./logo.png"></p>
+<br>
+<p align="center">
+    <a href="https://www.npmjs.com/package/ppath2d"><img src="https://img.shields.io/npm/v/ppath2d.svg"></a>
+    <a href="https://travis-ci.org/KHC-ZhiHao/Ppath2D">
+    <img src="https://travis-ci.org/KHC-ZhiHao/Ppath2D.svg?branch=master" alt="travis-ci"  style="max-width:100%;">
+    </a>
+    <a href="https://coveralls.io/github/KHC-ZhiHao/Ppath2D?branch=master">
+        <img src="https://coveralls.io/repos/github/KHC-ZhiHao/Ppath2D/badge.svg?branch=master" alt="Coverage Status"  style="max-width:100%;">
+    </a>
+    <a href="https://standardjs.com/">
+        <img src="https://img.shields.io/badge/code_style-standard-brightgreen.svg" alt="Standard Code Style"  style="max-width:100%;">
+    </a>
+    <a href="https://github.com/KHC-ZhiHao/Packhouse"><img src="https://img.shields.io/github/stars/KHC-ZhiHao/Packhouse.svg?style=social"></a>
+    <br>
+</p>
 
-[![NPM Version][npm-image]][npm-url]
+<br>
 
 #### 中文大綱
 
