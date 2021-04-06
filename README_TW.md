@@ -89,7 +89,7 @@ line.render(context)
 context.stroke()
 ```
 
-Ppath2D的路徑可以轉換成d語法
+#### Ppath2D的路徑可以轉換成d語法
 
 ```js
 let line = new Ppath2D()
@@ -134,7 +134,7 @@ let position = p.getLinePosition(0.5)
 //position.x === position.y === 110
 ```
 
-##### 獲取終點
+#### 獲取終點
 
 ```js
 let p = new Ppath2D('m10,10 l200,200')
@@ -157,15 +157,15 @@ let direction = p.getDirection(0.5)
 
 你可以藉由下列的描繪函數建立你的路徑
 
-* moveTo(x,y,absolute)
-* lineTo(x,y,absolute)
-* horizontalLineTo(x,absolute)
-* verticalLineTo(y,absolute)
-* curve(x1,y1,x2,y2,x,y,absolute)
-* quadraticBezierCurve(x1,y1,x,y,absolute)
-* smoothCurve(x2,y2,x,y,absolute)
-* smoothQuadraticBezierCurve(x,y,absolute)
-* arc(rx,ry,rotation,large,sweep,x,y,absolute)
+* moveTo(x, y, absolute)
+* lineTo(x, y, absolute)
+* horizontalLineTo(x, absolute)
+* verticalLineTo(y, absolute)
+* curve(x1, y1, x2, y2, x, y, absolute)
+* quadraticBezierCurve(x1, y1, x, y, absolute)
+* smoothCurve(x2, y2, x, y, absolute)
+* smoothQuadraticBezierCurve(x, y, absolute)
+* arc(rx, ry, rotation, large, sweep, x, y,absolute)
 * closePath()
 
 ---
@@ -182,7 +182,7 @@ line.setCache(true)
 
 ---
 
-## 關於Nodejs
+### 關於Nodejs
 
 因為是純數學，所以nodejs也可以運行Ppath2D，可以藉由node-canvas畫出路徑：
 

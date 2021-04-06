@@ -155,15 +155,15 @@ let direction = p.getDirection(0.5)
 
 ### Draw point methods
 
-* moveTo(x,y,absolute)
-* lineTo(x,y,absolute)
-* horizontalLineTo(x,absolute)
-* verticalLineTo(y,absolute)
-* curve(x1,y1,x2,y2,x,y,absolute)
-* quadraticBezierCurve(x1,y1,x,y,absolute)
-* smoothCurve(x2,y2,x,y,absolute)
-* smoothQuadraticBezierCurve(x,y,absolute)
-* arc(rx,ry,rotation,large,sweep,x,y,absolute)
+* moveTo(x, y, absolute)
+* lineTo(x, y, absolute)
+* horizontalLineTo(x, absolute)
+* verticalLineTo(y, absolute)
+* curve(x1, y1, x2, y2, x, y, absolute)
+* quadraticBezierCurve(x1, y1, x, y, absolute)
+* smoothCurve(x2, y2, x, y, absolute)
+* smoothQuadraticBezierCurve(x, y, absolute)
+* arc(rx, ry, rotation, large, sweep, x, y,absolute)
 * closePath()
 
 ---
