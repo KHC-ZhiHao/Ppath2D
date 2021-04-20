@@ -1,4 +1,4 @@
-export class Ppath2D {
+class Ppath2D {
     constructor(path?: string, mode?: 'path' | 'polygon' | 'polyline')
     setCache(enable: boolean): void
     addPath(path: Ppath2D): Ppath2D 
