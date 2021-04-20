@@ -89,4 +89,5 @@ class Main {
     }
 }
 
+exports.Ppath2D = Main
 module.exports = Main

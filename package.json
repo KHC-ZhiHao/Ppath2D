@@ -22,6 +22,7 @@
   "bugs": {
     "url": "https://github.com/KHC-ZhiHao/Ppath2D/issues"
   },
+  "types": "./types/index.d.ts",
   "homepage": "https://github.com/KHC-ZhiHao/Ppath2D#readme",
   "devDependencies": {
     "coveralls": "^3.0.6",
