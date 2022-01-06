@@ -6,7 +6,7 @@
   "scripts": {
     "test": "nyc mocha --timeout 2000",
     "build": "nyc mocha && cross-env webpack --progress --hide-modules",
-    "coverage": "nyc report --reporter=text-lcov | coveralls"
+    "coverage": "nyc --reporter=lcov npm test"
   },
   "repository": {
     "type": "git",
