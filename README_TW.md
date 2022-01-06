@@ -2,17 +2,24 @@
 <p align="center"><img src="./logo.png"></p>
 <br>
 <p align="center">
-    <a href="https://www.npmjs.com/package/ppath2d"><img src="https://img.shields.io/npm/v/ppath2d.svg"></a>
-    <a href="https://travis-ci.org/KHC-ZhiHao/Ppath2D">
-    <img src="https://travis-ci.org/KHC-ZhiHao/Ppath2D.svg?branch=master" alt="travis-ci"  style="max-width:100%;">
+    <a href="https://www.npmjs.com/package/ppath2d">
+        <img src="https://img.shields.io/npm/v/ppath2d.svg">
+    </a>
+    <a href='https://github.com/KHC-ZhiHao/Ppath2D/actions'>
+        <img src='https://github.com/KHC-ZhiHao/Ppath2D/actions/workflows/build-stage.yml/badge.svg'/>
     </a>
     <a href="https://coveralls.io/github/KHC-ZhiHao/Ppath2D?branch=master">
-        <img src="https://coveralls.io/repos/github/KHC-ZhiHao/Ppath2D/badge.svg?branch=master" alt="Coverage Status"  style="max-width:100%;">
+        <img src="https://coveralls.io/repos/github/KHC-ZhiHao/Ppath2D/badge.svg?branch=master">
     </a>
     <a href="https://standardjs.com/">
-        <img src="https://img.shields.io/badge/code_style-standard-brightgreen.svg" alt="Standard Code Style"  style="max-width:100%;">
+        <img src="https://img.shields.io/badge/code_style-standard-brightgreen.svg">
     </a>
-    <a href="https://github.com/KHC-ZhiHao/Packhouse"><img src="https://img.shields.io/github/stars/KHC-ZhiHao/Packhouse.svg?style=social"></a>
+    <a href="https://lgtm.com/projects/g/KHC-ZhiHao/Ppath2D/context:javascript">
+        <img src="https://img.shields.io/lgtm/grade/javascript/g/KHC-ZhiHao/Ppath2D.svg?logo=lgtm&logoWidth=18"/>
+    </a>
+    <a href="https://github.com/KHC-ZhiHao/Ppath2D">
+        <img src="https://img.shields.io/github/stars/KHC-ZhiHao/Ppath2D.svg?style=social">
+    </a>
     <br>
 </p>
 

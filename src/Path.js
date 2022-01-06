@@ -105,17 +105,6 @@ class Path extends ModuleBase {
         this.compile(path.toPathString())
     }
 
-    // 本來目的是調整節點後刷新，但節點的操作其實有其難度
-    // refresh() {
-    //     this.length = 0
-    //     this.siteCaches = []
-    //     this.lengthCaches = []
-    //     this.eachPoint((point) => {
-    //         this.lengthCaches.push(this.length)
-    //         this.length += point.length
-    //     })
-    // }
-
     render(context) {
         context.beginPath()
         this.eachPoint((point) => {
