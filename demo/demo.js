@@ -226,19 +226,32 @@ let pathBase = new Ppath2D(path.base)
 let pathLamp = new Ppath2D(path.lamp)
 let pathGirl = new Ppath2D(path.girl)
 
+let fill = true
 let bgcContext = bgc.getContext('2d')
 
-pathLamp.render(bgcContext)
-bgcContext.fillStyle = '#E3E3E3'
-bgcContext.fill()
-
-pathBase.render(bgcContext)
-bgcContext.fillStyle = '#000'
-bgcContext.fill()
-
-pathGirl.render(bgcContext)
-bgcContext.fillStyle = '#000'
-bgcContext.fill()
+function init() {
+    let render = () => {
+        if (fill) {
+            bgcContext.fill()
+        } else {
+            bgcContext.stroke()
+        }
+    }
+    bgcContext.clearRect(0, 0, bgc.width, bgc.height)
+    pathLamp.render(bgcContext)
+    bgcContext.fillStyle = '#E3E3E3'
+    render()
+    pathBase.render(bgcContext)
+    bgcContext.fillStyle = '#000'
+    render()
+    pathGirl.render(bgcContext)
+    bgcContext.fillStyle = '#000'
+    render()
+    if (fill === false) {
+        pathFly.render(bgcContext)
+        render()
+    }
+}
 
 let stage = document.createElement('canvas')
 stage.width = '1920'
@@ -274,4 +287,10 @@ function update() {
     requestAnimationFrame(update)
 }
 
+init()
 update()
+
+window.document.body.addEventListener('click', () => {
+    fill = !fill
+    init()
+})
