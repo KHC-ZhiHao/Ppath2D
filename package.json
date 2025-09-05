@@ -1,12 +1,13 @@
 {
   "name": "ppath2d",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "Can get position and direction of svg path.",
   "main": "./dist/index.js",
   "scripts": {
-    "test": "nyc mocha --timeout 2000",
-    "build": "nyc mocha && cross-env webpack --progress --hide-modules",
-    "coverage": "nyc --reporter=lcov npm test"
+    "demo": "http-server",
+    "test": "vitest ./test/index.test.ts",
+    "build": "tsc --declaration --emitDeclarationOnly && node ./esbuild.mjs",
+    "coverage": "vitest run --coverage"
   },
   "repository": {
     "type": "git",
@@ -22,26 +23,19 @@
   "bugs": {
     "url": "https://github.com/KHC-ZhiHao/Ppath2D/issues"
   },
-  "types": "./types/index.d.ts",
+  "types": "./types/src",
   "homepage": "https://github.com/KHC-ZhiHao/Ppath2D#readme",
   "devDependencies": {
-    "coveralls": "^3.0.6",
-    "nyc": "^14.1.1",
-    "@babel/core": "^7.4.5",
-    "@babel/preset-env": "^7.4.5",
-    "babel-loader": "^8.0.6",
-    "canvas": "^2.8.0",
-    "chai": "^4.2.0",
-    "cross-env": "^5.2.0",
-    "eslint": "^6.0.1",
-    "eslint-config-standard": "^12.0.0",
-    "eslint-loader": "^2.1.2",
-    "eslint-plugin-import": "^2.18.0",
-    "eslint-plugin-node": "^9.1.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.0",
-    "mocha": "^6.1.4",
-    "webpack": "^4.35.0",
-    "webpack-cli": "^3.3.5"
+    "@stylistic/eslint-plugin": "^2.12.1",
+    "canvas": "^3.2.0",
+    "esbuild": "^0.24.2",
+    "esbuild-node-externals": "^1.16.0",
+    "esbuild-plugin-env": "^1.1.1",
+    "esbuild-plugin-eslint": "^0.3.12",
+    "eslint": "9.14.0",
+    "http-server": "^14.1.1",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.18.1",
+    "vitest": "^3.2.4"
   }
 }

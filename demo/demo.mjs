@@ -1,6 +1,7 @@
-
+import Ppath2D from '../dist/index.js';
+console.log(Ppath2D)
 const path = {
-    'base': `
+  base: `
        M656,949v-31H290.179c0.945-0.299,1.78-0.707,2.375-1.324c5.189-5.391,9.742-11.417,14.317-17.369
         c2.064-2.684,1.494-5.356-1.403-7.354c-8.645-5.955-12.218-16.041-18.982-23.562c-1.496-1.663-2.373-5.961-1.307-7.482
         c3.867-5.511,1.596-9.438-1.878-13.606c-2.882-3.459-5.814-6.784-6.062-11.792c-1.015-20.431-2.205-40.854-3.474-61.271
@@ -95,12 +96,12 @@ const path = {
         c-0.84,0.058-3.596,2.342-5.076,3.686C254.129,276.323,254.129,268.482,254.129,259.596z
     `,
 
-    'lamp': `
+  lamp: `
         M414,371c0,0-15.5,19.5-11.25,37.25s16,53.5,32.25,53s37.75-0.75,41.75-70.25
         C437,380,414,371,414,371z
     `,
 
-    'girl': `
+  girl: `
         M851.817,522.393c-3.96,0.941-9.252,5.41-10.075,8.586c-0.784,2.901-1.255,3.96-2.509,5.645
         c-1.921,2.548-3.215,5.253-4.312,9.095c-0.862,2.979-1.019,4.195-0.941,7.488c0.118,4.469-0.039,4.861-4.156,9.448
         c-1.215,1.333-2.195,2.784-2.195,3.176c0,0.431,0.588,1.215,1.294,1.764c2.627,2.078,2.627,2.039,2.705,4.822
@@ -164,7 +165,7 @@ const path = {
         c1.49-1.372,3.058-3.45,5.645-7.449c3.803-5.802,15.956-21.248,16.622-21.013C844.133,794.233,844.368,795.605,844.486,797.213z
     `,
 
-    'fly': `
+  fly: `
         M395.779,528.87c-13.889,4.042-26.034-15.079-19.863-28.162
         s22.957-18.01,37.243-15.738c14.286,2.272,27.008,9.977,40.105,16.119s28.006,10.866,41.876,6.762
         c24.385-7.215,33.547-37.616,31.46-62.96c-0.255-3.103-0.69-6.376-2.619-8.82c-2.779-3.519-7.754-4.267-12.233-4.488
@@ -212,7 +213,7 @@ const path = {
         c-3.9,6.265-10.653,10.076-17.123,13.626c-12.783,7.013-25.812,14.119-40.1,17.026c-14.287,2.907-30.288,1.026-41.417-8.392
         c-13.246-11.21-16.755-30.186-16.66-47.538c0.017-3.077,0.208-6.403,2.157-8.784c1.676-2.047,4.326-2.981,6.858-3.747
         c30.391-9.192,64.076-7.026,93.04,5.981
-    `
+    `,
 }
 
 let canvas = document.getElementById('canvas')
@@ -230,27 +231,28 @@ let fill = true
 let bgcContext = bgc.getContext('2d')
 
 function init() {
-    let render = () => {
-        if (fill) {
-            bgcContext.fill()
-        } else {
-            bgcContext.stroke()
-        }
+  let render = () => {
+    if (fill) {
+      bgcContext.fill()
     }
-    bgcContext.clearRect(0, 0, bgc.width, bgc.height)
-    pathLamp.render(bgcContext)
-    bgcContext.fillStyle = '#E3E3E3'
-    render()
-    pathBase.render(bgcContext)
-    bgcContext.fillStyle = '#000'
-    render()
-    pathGirl.render(bgcContext)
-    bgcContext.fillStyle = '#000'
-    render()
-    if (fill === false) {
-        pathFly.render(bgcContext)
-        render()
+    else {
+      bgcContext.stroke()
     }
+  }
+  bgcContext.clearRect(0, 0, bgc.width, bgc.height)
+  pathLamp.render(bgcContext)
+  bgcContext.fillStyle = '#E3E3E3'
+  render()
+  pathBase.render(bgcContext)
+  bgcContext.fillStyle = '#000'
+  render()
+  pathGirl.render(bgcContext)
+  bgcContext.fillStyle = '#000'
+  render()
+  if (fill === false) {
+    pathFly.render(bgcContext)
+    render()
+  }
 }
 
 let stage = document.createElement('canvas')
@@ -271,26 +273,26 @@ light.addColorStop(1, 'rgba(227,227,227,0)')
 stageContext.fillStyle = light
 
 for (let i = 0; i < 20; i++) {
-    ants[i] = i / 20
+  ants[i] = i / 20
 }
 
 function update() {
-    stageContext.clearRect(0, 0, 1920, 1080)
-    for (let i = 0; i < ants.length; i++) {
-        ants[i] = (ants[i] + 0.001) % 1
-        let position = pathFly.getLinePosition(ants[i])
-        stageContext.fillRect(position.x, position.y, 3, 3)
-    }
-    canvasContext.clearRect(0, 0, 1920, 1080)
-    canvasContext.drawImage(bgc, 0, 0)
-    canvasContext.drawImage(stage, 0, 0)
-    requestAnimationFrame(update)
+  stageContext.clearRect(0, 0, 1920, 1080)
+  for (let i = 0; i < ants.length; i++) {
+    ants[i] = (ants[i] + 0.001) % 1
+    let position = pathFly.getLinePosition(ants[i])
+    stageContext.fillRect(position.x, position.y, 3, 3)
+  }
+  canvasContext.clearRect(0, 0, 1920, 1080)
+  canvasContext.drawImage(bgc, 0, 0)
+  canvasContext.drawImage(stage, 0, 0)
+  requestAnimationFrame(update)
 }
 
 init()
 update()
 
 window.document.body.addEventListener('click', () => {
-    fill = !fill
-    init()
+  fill = !fill
+  init()
 })

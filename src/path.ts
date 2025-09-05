@@ -1,7 +1,34 @@
-const ModuleBase = require('./ModuleBase')
+import ModuleBase from './base'
+
+interface Point {
+    x: number
+    y: number
+}
+
+interface PointData {
+    p1x: number
+    p1y: number
+    p2x: number
+    p2y: number
+    ex: number
+    ey: number
+}
+
+interface Offset {
+    x: number
+    y: number
+}
+
+type CompileMode = 'path' | 'polygon' | 'polyline'
 
 class Path extends ModuleBase {
-    constructor(data, mode) {
+    points: PointBase[]
+    length: number
+    cacheMode: boolean
+    siteCaches: Point[]
+    lengthCaches: number[]
+
+    constructor(data?: string, mode?: CompileMode) {
         super('Path')
         this.points = []
         this.length = 0
@@ -16,7 +43,7 @@ class Path extends ModuleBase {
         }
     }
 
-    compile(data, mode = 'path') {
+    compile(data: string, mode: CompileMode = 'path'): void {
         let list = {
             a: 'arc',
             m: 'moveTo',
@@ -28,6 +55,25 @@ class Path extends ModuleBase {
             s: 'smoothCurve',
             t: 'smoothQuadraticBezierCurve',
             z: 'closePath'
+        }
+        const paramCounts = {
+            m: 2, // moveTo: x, y
+            l: 2, // lineTo: x, y
+            h: 1, // horizontalLineTo: x
+            v: 1, // verticalLineTo: y
+            c: 6, // curve: x1, y1, x2, y2, x, y
+            q: 4, // quadraticBezierCurve: x1, y1, x, y
+            s: 4, // smoothCurve: x2, y2, x, y
+            t: 2, // smoothQuadraticBezierCurve: x, y
+            a: 7, // arc: rx, ry, rotation, large-arc, sweep, x, y
+            z: 0 // closePath: 無參數
+        }
+        const chunkArray = <T>(arr: T[], size: number): T[][] => {
+            let result = []
+            for (let i = 0; i < arr.length; i += size) {
+                result.push(arr.slice(i, i + size))
+            }
+            return result
         }
         if (mode === 'path') {
             let keys = Object.keys(list)
@@ -46,14 +92,16 @@ class Path extends ModuleBase {
             for (let param of params) {
                 let pt = param.trim()
                 let key = pt.slice(0, 1)
-                let data = pt.slice(1).split(/,|\s/).filter((t) => { return t !== '' }).map((d) => {
+                let data = pt.slice(1).split(/,|\s/).filter((t) => t !== '').map((d) => {
                     return Number(d)
                 })
+                let count = paramCounts[key.toLowerCase() as keyof typeof paramCounts]
+                let units = chunkArray(data, count)
                 if (keys.indexOf(key.toLowerCase()) !== -1) {
-                    if (/[a-z]/.test(key)) {
-                        this[list[key.toLowerCase()]](...data, false)
-                    } else {
-                        this[list[key.toLowerCase()]](...data, true)
+                    let isAbs = /[A-Z]/.test(key)
+                    for (let unit of units) {
+                        // @ts-ignore
+                        this[list[key.toLowerCase()]](...unit, isAbs)
                     }
                 } else {
                     this.systemError('compile', 'Key name not found', key)
@@ -67,52 +115,56 @@ class Path extends ModuleBase {
         }
     }
 
-    readPolyline(data) {
+    readPolyline(data: string): void {
         let params = ''
         for (let i = 0; i < data.length; i++) {
-            if (data[i] === '-') { params += ' ' }
+            if (data[i] === '-') {
+                params += ' '
+            }
             params += data[i]
         }
-        data = params.split(/,|\s/).filter((t) => { return t !== '' }).map((d) => {
+        const pos = params.split(/,|\s/).filter((t) => t !== '').map((d) => {
             return Number(d)
         })
-        this.moveTo(data[0], data[1], true)
+        this.moveTo(pos[0], pos[1], true)
         for (let i = 2; i < data.length; i += 2) {
-            this.lineTo(data[i], data[i + 1], true)
+            this.lineTo(pos[i], pos[i + 1], true)
         }
     }
 
-    eachPoint(callback) {
+    eachPoint(callback: (point: PointBase) => void): void {
         let len = this.points.length
         for (let i = 0; i < len; i++) {
             callback(this.points[i])
         }
     }
 
-    addPoint(point) {
-        if (point.error) { this.systemError('addPoint', point.error, point) }
+    addPoint(point: PointBase): void {
+        if (point.error) {
+            this.systemError('addPoint', point.error, point)
+        }
         this.lengthCaches.push(this.length)
         this.points.push(point)
         this.length += point.length
     }
 
-    setCache(enable) {
+    setCache(enable: boolean): void {
         this.cacheMode = !!enable
         this.siteCaches = []
     }
 
-    addPath(path) {
+    addPath(path: Path): void {
         this.compile(path.toPathString())
     }
 
-    render(context) {
+    render(context: CanvasRenderingContext2D): void {
         context.beginPath()
         this.eachPoint((point) => {
             point.render(context)
         })
     }
 
-    toPathString() {
+    toPathString(): string {
         let string = ''
         this.eachPoint((point) => {
             string += point.toPathString()
@@ -120,16 +172,16 @@ class Path extends ModuleBase {
         return string
     }
 
-    getLastPoint() {
+    getLastPoint(): { ex: number, ey: number } {
         return this.points.length === 0 ? { ex: 0, ey: 0 } : this.points.slice(-1)[0]
     }
 
-    getLastPosition() {
+    getLastPosition(): Point {
         let p = this.points[this.points.length - 1]
         return p ? p.getLastPosition() : { x: 0, y: 0 }
     }
 
-    getLinePosition(t) {
+    getLinePosition(t: number): Point {
         if (this.cacheMode && this.siteCaches[t]) {
             return this.siteCaches[t]
         }
@@ -172,79 +224,134 @@ class Path extends ModuleBase {
         return site
     }
 
-    getDirection(t) {
+    getRect(): { x: number, y: number, width: number, height: number } {
+        if (this.points.length === 0) {
+            return {
+                x: 0,
+                y: 0,
+                width: 0,
+                height: 0
+            }
+        }
+
+        let minX = Infinity
+        let minY = Infinity
+        let maxX = -Infinity
+        let maxY = -Infinity
+
+        const updateBounds = (x: number, y: number) => {
+            minX = Math.min(minX, x)
+            minY = Math.min(minY, y)
+            maxX = Math.max(maxX, x)
+            maxY = Math.max(maxY, y)
+        }
+
+        this.eachPoint((point) => {
+            // 檢查起點
+            updateBounds(point.sx, point.sy)
+            // 檢查終點
+            updateBounds(point.ex, point.ey)
+
+            // 對於曲線類型的點，也檢查控制點
+            if (point instanceof PointBase.Curve
+              || point instanceof PointBase.QuadraticBezierCurve
+              || point instanceof PointBase.SmoothCurve) {
+                updateBounds(point.p1x, point.p1y)
+                updateBounds(point.p2x, point.p2y)
+            }
+
+            // 對於弧線，取樣多個點來確保準確性
+            if (point instanceof PointBase.Arc) {
+                for (let i = 0; i <= 100; i++) {
+                    const pos = point.getLinePosition(i / 100)
+                    updateBounds(pos.x, pos.y)
+                }
+            }
+        })
+
+        return {
+            x: minX,
+            y: minY,
+            width: maxX - minX,
+            height: maxY - minY
+        }
+    }
+
+    getDirection(t: number): number {
         let to = t + 0.01
         let p1 = this.getLinePosition(t)
         let p2 = this.getLinePosition(to)
         return Supports.getAngle(p1.x, p1.y, p2.x, p2.y) - 270
     }
 
-    moveTo(x, y, abs = false) {
+    moveTo(x: number, y: number, abs: boolean = false): this {
         this.addPoint(new PointBase.MoveTo(this, this.getLastPoint(), x, y, abs))
         return this
     }
 
-    lineTo(x, y, abs = false) {
+    lineTo(x: number, y: number, abs: boolean = false): this {
         this.addPoint(new PointBase.LineTo(this, this.getLastPoint(), x, y, abs))
         return this
     }
 
-    curve(x1, y1, x2, y2, x, y, abs = false) {
+    curve(x1: number, y1: number, x2: number, y2: number, x: number, y: number, abs: boolean = false): this {
         this.addPoint(new PointBase.Curve(this, this.getLastPoint(), x1, y1, x2, y2, x, y, abs))
         return this
     }
 
-    quadraticBezierCurve(x1, y1, x, y, abs = false) {
+    quadraticBezierCurve(x1: number, y1: number, x: number, y: number, abs: boolean = false): this {
         this.addPoint(new PointBase.QuadraticBezierCurve(this, this.getLastPoint(), x1, y1, x, y, abs))
         return this
     }
 
-    smoothCurve(x2, y2, x, y, abs = false) {
+    smoothCurve(x2: number, y2: number, x: number, y: number, abs: boolean = false): this {
         this.addPoint(new PointBase.SmoothCurve(this, this.getLastPoint(), x2, y2, x, y, abs))
         return this
     }
 
-    smoothQuadraticBezierCurve(x, y, abs = false) {
-        this.addPoint(new PointBase.SmoothQuadraticBezierCurve(this, this.getLastPoint(), x, y, abs))
+    smoothQuadraticBezierCurve(x: number, y: number, abs: boolean = false): this {
+        this.addPoint(new PointBase.SmoothQuadraticBezierCurve(this, this.getLastPoint() as any, x, y, abs))
         return this
     }
 
-    horizontalLineTo(x, abs = false) {
+    horizontalLineTo(x: number, abs: boolean = false): this {
         this.addPoint(new PointBase.HorizontalLineTo(this, this.getLastPoint(), x, abs))
         return this
     }
 
-    verticalLineTo(y, abs = false) {
+    verticalLineTo(y: number, abs: boolean = false): this {
         this.addPoint(new PointBase.VerticalLineTo(this, this.getLastPoint(), y, abs))
         return this
     }
 
-    arc(rx, ry, rotation, large, sweep, x, y, abs = false) {
+    arc(rx: number, ry: number, rotation: number, large: number, sweep: number, x: number, y: number, abs: boolean = false): this {
         this.addPoint(new PointBase.Arc(this, this.getLastPoint(), rx, ry, rotation, large, sweep, x, y, abs))
         return this
     }
 
-    closePath() {
+    closePath(): this {
         let target = this.points.filter((p) => {
             return p instanceof PointBase.MoveTo
         }).pop()
-        this.addPoint(new PointBase.ClosePath(this, this.getLastPoint(), target))
+        this.addPoint(new PointBase.ClosePath(this, this.getLastPoint(), target!))
         return this
     }
 }
 
 class Supports {
-    static getDistance(x, y, ax, ay) {
+    static getDistance(x: number, y: number, ax: number, ay: number): number {
         return Math.sqrt(Math.pow((ax - x), 2) + Math.pow((ay - y), 2))
     }
 
-    static getAngle(x, y, ax, ay) {
-        if (x === ax && y === ay) { return 0 }
+    static getAngle(x: number, y: number, ax: number, ay: number): number {
+        if (x === ax && y === ay) {
+            return 0
+        }
         var angle = Math.atan2((ay - y), (ax - x)) * 180 / Math.PI
         return angle > 0 ? angle : 360 + angle
     }
 
-    static getSvgLength(d) {
+    static getSvgLength(d: string): number {
         const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path')
         pathElement.setAttributeNS(null, 'd', d)
         return pathElement.getTotalLength()
@@ -252,48 +359,79 @@ class Supports {
 }
 
 class PointBase {
-    constructor(path, parent, absolute = false) {
+    error: string | null
+    path: Path
+    parent: { ex: number, ey: number }
+    offset: Offset
+    _absolute: boolean
+    length: number
+    data: PointData
+
+    // 靜態子類屬性聲明
+    static MoveTo: typeof MoveTo
+    static LineTo: typeof LineTo
+    static HorizontalLineTo: typeof HorizontalLineTo
+    static VerticalLineTo: typeof VerticalLineTo
+    static Curve: typeof Curve
+    static QuadraticBezierCurve: typeof QuadraticBezierCurve
+    static SmoothCurve: typeof SmoothCurve
+    static SmoothQuadraticBezierCurve: typeof SmoothQuadraticBezierCurve
+    static Arc: typeof Arc
+    static ClosePath: typeof ClosePath
+
+    constructor(path: Path, parent: { ex: number, ey: number }, absolute: boolean = false) {
         this.error = null
-        this.initData()
-        this.resetReference(path, parent)
+        this.length = 0
+        this.data = {
+            p1x: 0,
+            p1y: 0,
+            p2x: 0,
+            p2y: 0,
+            ex: 0,
+            ey: 0
+        }
+        this.path = path
+        this.parent = parent
         this.offset = { x: 0, y: 0 }
         this.absolute = !!absolute
         this._absolute = !!absolute
     }
 
-    set absolute(absolute) {
+    set absolute(absolute: boolean) {
         this._absolute = !!absolute
         this.offset.x = absolute ? 0 : this.sx
         this.offset.y = absolute ? 0 : this.sy
     }
 
-    get sx() { return this.parent.ex }
-    get sy() { return this.parent.ey }
+    get absolute(): boolean { return this._absolute }
 
-    get ex() { return this.data.ex + this.offset.x }
-    set ex(val) { this.data.ex = val }
+    get sx(): number { return this.parent.ex }
+    get sy(): number { return this.parent.ey }
 
-    get ey() { return this.data.ey + this.offset.y }
-    set ey(val) { this.data.ey = val }
+    get ex(): number { return this.data.ex + this.offset.x }
+    set ex(val: number) { this.data.ex = val }
 
-    get p1x() { return this.data.p1x + this.offset.x }
-    set p1x(val) { this.data.p1x = val }
+    get ey(): number { return this.data.ey + this.offset.y }
+    set ey(val: number) { this.data.ey = val }
 
-    get p1y() { return this.data.p1y + this.offset.y }
-    set p1y(val) { this.data.p1y = val }
+    get p1x(): number { return this.data.p1x + this.offset.x }
+    set p1x(val: number) { this.data.p1x = val }
 
-    get p2x() { return this.data.p2x + this.offset.x }
-    set p2x(val) { this.data.p2x = val }
+    get p1y(): number { return this.data.p1y + this.offset.y }
+    set p1y(val: number) { this.data.p1y = val }
 
-    get p2y() { return this.data.p2y + this.offset.y }
-    set p2y(val) { this.data.p2y = val }
+    get p2x(): number { return this.data.p2x + this.offset.x }
+    set p2x(val: number) { this.data.p2x = val }
 
-    resetReference(path, parent) {
+    get p2y(): number { return this.data.p2y + this.offset.y }
+    set p2y(val: number) { this.data.p2y = val }
+
+    resetReference(path: Path, parent?: { ex: number, ey: number }): void {
         this.path = path
         this.parent = parent || this.parent
     }
 
-    initData() {
+    initData(): void {
         this.length = 0
         this.data = {
             p1x: 0,
@@ -305,37 +443,43 @@ class PointBase {
         }
     }
 
-    resetData(options) {
+    resetData(options: Partial<PointData>): void {
         for (let key in options) {
+            // @ts-ignore
             if (this.data[key] != null) {
+                // @ts-ignore
                 this[key] = options[key]
             }
         }
         this.refresh()
     }
 
-    refresh() {
+    refresh(): void {
         this.length = this.getLength()
     }
 
-    getLength() {
+    getLength(): number {
         return 0
     }
 
-    getLastPosition() {
+    getLastPosition(): Point {
         return {
             x: this.ex,
             y: this.ey
         }
     }
 
-    getType() {
+    getType(): string {
         return this.toPathString().trim()[0]
     }
+
+    render(context: CanvasRenderingContext2D): void {}
+    toPathString(): string { return '' }
+    getLinePosition(t?: number): Point { return { x: 0, y: 0 } }
 }
 
-PointBase.MoveTo = class extends PointBase {
-    constructor(path, parent, x, y, absolute) {
+class MoveTo extends PointBase {
+    constructor(path: Path, parent: { ex: number, ey: number }, x: number, y: number, absolute: boolean) {
         super(path, parent, absolute)
         this.resetData({
             ex: x,
@@ -343,32 +487,32 @@ PointBase.MoveTo = class extends PointBase {
         })
     }
 
-    render(context) {
+    render(context: CanvasRenderingContext2D): void {
         context.moveTo(this.ex, this.ey)
     }
 
-    toPathString() {
+    toPathString(): string {
         return `M${this.ex},${this.ey}`
     }
 
-    getLinePosition() {
+    getLinePosition(): Point {
         return {
             x: this.ex,
             y: this.ey
         }
     }
 
-    getPositionX() {
+    getPositionX(): number {
         return this.ex
     }
 
-    getPositionY() {
+    getPositionY(): number {
         return this.ey
     }
 }
 
-PointBase.LineTo = class extends PointBase {
-    constructor(path, parent, x, y, absolute) {
+class LineTo extends PointBase {
+    constructor(path: Path, parent: { ex: number, ey: number }, x: number, y: number, absolute: boolean) {
         super(path, parent, absolute)
         this.resetData({
             ex: x,
@@ -376,48 +520,48 @@ PointBase.LineTo = class extends PointBase {
         })
     }
 
-    render(context) {
+    render(context: CanvasRenderingContext2D): void {
         context.lineTo(this.ex, this.ey)
     }
 
-    toPathString() {
+    toPathString(): string {
         return `L${this.ex},${this.ey}`
     }
 
-    getLinePosition(t) {
+    getLinePosition(t: number): Point {
         return {
             x: this.sx * (1 - t) + this.ex * t,
             y: this.sy * (1 - t) + this.ey * t
         }
     }
 
-    getLength() {
+    getLength(): number {
         return Supports.getDistance(this.sx, this.sy, this.ex, this.ey)
     }
 }
 
-PointBase.HorizontalLineTo = class extends PointBase.LineTo {
-    constructor(path, parent, x, absolute) {
+class HorizontalLineTo extends LineTo {
+    constructor(path: Path, parent: { ex: number, ey: number }, x: number, absolute: boolean) {
         super(path, parent, x, absolute ? parent.ey : 0, absolute)
     }
 
-    toPathString() {
+    toPathString(): string {
         return `H${this.ex}`
     }
 }
 
-PointBase.VerticalLineTo = class extends PointBase.LineTo {
-    constructor(path, parent, y, absolute) {
+class VerticalLineTo extends LineTo {
+    constructor(path: Path, parent: { ex: number, ey: number }, y: number, absolute: boolean) {
         super(path, parent, absolute ? parent.ex : 0, y, absolute)
     }
 
-    toPathString() {
+    toPathString(): string {
         return `V${this.ey}`
     }
 }
 
-PointBase.Curve = class extends PointBase {
-    constructor(path, parent, x1, y1, x2, y2, x, y, absolute = false) {
+class Curve extends PointBase {
+    constructor(path: Path, parent: { ex: number, ey: number }, x1: number, y1: number, x2: number, y2: number, x: number, y: number, absolute: boolean = false) {
         super(path, parent, absolute)
         this.resetData({
             p1x: x1,
@@ -429,15 +573,15 @@ PointBase.Curve = class extends PointBase {
         })
     }
 
-    getStep() {
+    getStep(): number {
         return 100
     }
 
-    getPoint(t, s, p1, p2, e) {
+    getPoint(t: number, s: number, p1: number, p2: number, e: number): number {
         return s * (1 - t) * (1 - t) * (1 - t) + 3 * p1 * (1 - t) * (1 - t) * t + 3 * p2 * (1 - t) * t * t + e * t * t * t
     }
 
-    getLength() {
+    getLength(): number {
         if (Compatibility.GeometryElement) {
             return Supports.getSvgLength(`M${this.sx},${this.sy}` + this.toPathString())
         }
@@ -463,15 +607,15 @@ PointBase.Curve = class extends PointBase {
         return length
     }
 
-    render(context) {
+    render(context: CanvasRenderingContext2D): void {
         context.bezierCurveTo(this.p1x, this.p1y, this.p2x, this.p2y, this.ex, this.ey)
     }
 
-    toPathString() {
+    toPathString(): string {
         return `C${this.p1x},${this.p1y},${this.p2x},${this.p2y},${this.ex},${this.ey}`
     }
 
-    getLinePosition(t) {
+    getLinePosition(t: number): Point {
         return {
             x: this.getPoint(t, this.sx, this.p1x, this.p2x, this.ex),
             y: this.getPoint(t, this.sy, this.p1y, this.p2y, this.ey)
@@ -479,87 +623,93 @@ PointBase.Curve = class extends PointBase {
     }
 }
 
-PointBase.QuadraticBezierCurve = class extends PointBase.Curve {
-    constructor(path, parent, p1x, p1y, ex, ey, absolute = false) {
+class QuadraticBezierCurve extends Curve {
+    constructor(path: Path, parent: { ex: number, ey: number }, p1x: number, p1y: number, ex: number, ey: number, absolute: boolean = false) {
         super(path, parent, p1x, p1y, p1x, p1y, ex, ey, absolute)
     }
 
-    get p2x() { return this.p1x };
-    set p2x(val) { this.data.p2x = val }
+    get p2x(): number { return this.p1x };
+    set p2x(val: number) { this.data.p2x = val }
 
-    get p2y() { return this.p1y };
-    set p2y(val) { this.data.p2y = val }
+    get p2y(): number { return this.p1y };
+    set p2y(val: number) { this.data.p2y = val }
 
-    render(context) {
+    render(context: CanvasRenderingContext2D): void {
         context.quadraticCurveTo(this.p1x, this.p1y, this.ex, this.ey)
     }
 
-    toPathString() {
+    toPathString(): string {
         return `Q${this.p1x},${this.p1y},${this.ex},${this.ey}`
     }
 
-    getPoint(t, s, p1, p2, e) {
+    getPoint(t: number, s: number, p1: number, p2: number, e: number): number {
         return (1 - t) * (1 - t) * s + 2 * t * (1 - t) * p1 + t * t * e
     }
 }
 
-PointBase.SmoothCurve = class extends PointBase.Curve {
-    constructor(path, parent, p2x, p2y, ex, ey, absolute = false) {
+class SmoothCurve extends Curve {
+    constructor(path: Path, parent: { ex: number, ey: number }, p2x: number, p2y: number, ex: number, ey: number, absolute: boolean = false) {
         super(path, parent, 0, 0, p2x, p2y, ex, ey, absolute)
     }
 
-    get parentIsCurve() { return !!this.parent.getType().toLowerCase().match(/q|c|s|t/) }
+    get parentIsCurve(): boolean { return !!(this.parent as any).getType().toLowerCase().match(/q|c|s|t/) }
 
-    get p1x() { return this.parentIsCurve ? this.parent.ex * 2 - this.parent.p2x : this.p2x };
-    set p1x(val) { this.data.p1x = val }
+    get p1x(): number { return this.parentIsCurve ? this.parent.ex * 2 - (this.parent as any).p2x : this.p2x };
+    set p1x(val: number) { this.data.p1x = val }
 
-    get p1y() { return this.parentIsCurve ? this.parent.ey * 2 - this.parent.p2y : this.p2y };
-    set p1y(val) { this.data.p1y = val }
+    get p1y(): number { return this.parentIsCurve ? this.parent.ey * 2 - (this.parent as any).p2y : this.p2y };
+    set p1y(val: number) { this.data.p1y = val }
 
-    render(context) {
+    render(context: CanvasRenderingContext2D): void {
         context.bezierCurveTo(this.p1x, this.p1y, this.p2x, this.p2y, this.ex, this.ey)
     }
 
-    toPathString() {
+    toPathString(): string {
         return `S${this.p2x},${this.p2y},${this.ex},${this.ey}`
     }
 }
 
-PointBase.SmoothQuadraticBezierCurve = class extends PointBase.Curve {
-    constructor(path, parent, ex, ey, absolute = false) {
+class SmoothQuadraticBezierCurve extends Curve {
+    constructor(path: Path, parent: { ex: number, ey: number, getType(): string, p1x?: number, p1y?: number }, ex: number, ey: number, absolute: boolean = false) {
         super(path, parent, 0, 0, 0, 0, ex, ey, absolute)
         if (parent.getType().toLowerCase() !== 'q') {
             this.error = 'Smooth Quadratic BezierCurve previous point must a Quadratic Bezier Curve.'
         }
     }
 
-    get p2x() { return this.p1x };
-    set p2x(val) {}
+    get p2x(): number { return this.p1x };
+    set p2x(val: number) {}
 
-    get p2y() { return this.p1y };
-    set p2y(val) {}
+    get p2y(): number { return this.p1y };
+    set p2y(val: number) {}
 
-    get p1x() { return this.parent.ex * 2 - this.parent.p1x }
-    set p1x(val) {}
+    get p1x(): number { return this.parent.ex * 2 - (this.parent as any).p1x }
+    set p1x(val: number) {}
 
-    get p1y() { return this.parent.ey * 2 - this.parent.p1y }
-    set p1y(val) {}
+    get p1y(): number { return this.parent.ey * 2 - (this.parent as any).p1y }
+    set p1y(val: number) {}
 
-    render(context) {
+    render(context: CanvasRenderingContext2D): void {
         context.quadraticCurveTo(this.p1x, this.p1y, this.ex, this.ey)
     }
 
-    toPathString() {
+    toPathString(): string {
         return `T${this.ex},${this.ey}`
     }
 
-    getPoint(t, s, p1, p2, e) {
+    getPoint(t: number, s: number, p1: number, p2: number, e: number): number {
         return (1 - t) * (1 - t) * s + 2 * t * (1 - t) * p1 + t * t * e
     }
 }
 
-PointBase.Arc = class extends PointBase {
-    constructor(path, parent, rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x, y, absolute = false) {
+class Arc extends PointBase {
+    rx: number
+    ry: number
+    sweepFlag: number
+    largeArcFlag: number
+    xAxisRotation: number
+
+    constructor(path: Path, parent: { ex: number, ey: number }, rx: number, ry: number, xAxisRotation: number, largeArcFlag: number, sweepFlag: number, x: number, y: number, absolute: boolean = false) {
         super(path, parent, absolute)
         this.rx = rx
         this.ry = ry
@@ -572,7 +722,7 @@ PointBase.Arc = class extends PointBase {
         })
     }
 
-    resetData(options) {
+    resetData(options: Partial<PointData> & Partial<{ rx: number, ry: number, sweepFlag: number, largeArcFlag: number, xAxisRotation: number }>): void {
         this.rx = options.rx ? options.rx : this.rx
         this.ry = options.ry ? options.ry : this.ry
         this.sweepFlag = options.sweepFlag ? options.sweepFlag : this.sweepFlag
@@ -581,11 +731,11 @@ PointBase.Arc = class extends PointBase {
         super.resetData(options)
     }
 
-    getStep() {
+    getStep(): number {
         return 100
     }
 
-    render(context) {
+    render(context: CanvasRenderingContext2D): void {
         let steps = this.getStep()
         for (let i = 0; i < steps; i += 1) {
             let p = this.getLinePosition(i / steps)
@@ -593,11 +743,11 @@ PointBase.Arc = class extends PointBase {
         }
     }
 
-    toPathString() {
+    toPathString(): string {
         return `A${this.rx},${this.ry},${this.xAxisRotation},${this.largeArcFlag},${this.sweepFlag},${this.ex},${this.ey}`
     }
 
-    angleBetween(v0, v1) {
+    angleBetween(v0: Point, v1: Point): number {
         var p = v0.x * v1.x + v0.y * v1.y
         var n = Math.sqrt((Math.pow(v0.x, 2) + Math.pow(v0.y, 2)) * (Math.pow(v1.x, 2) + Math.pow(v1.y, 2)))
         var sign = v0.x * v1.y - v0.y * v1.x < 0 ? -1 : 1
@@ -605,7 +755,7 @@ PointBase.Arc = class extends PointBase {
         return angle
     }
 
-    getLinePosition(per) {
+    getLinePosition(per: number): Point {
         var rx = Math.abs(this.rx)
         var ry = Math.abs(this.ry)
         var prx = Math.pow(rx, 2)
@@ -691,11 +841,11 @@ PointBase.Arc = class extends PointBase {
         }
     }
 
-    getDistance(p1, p2) {
+    getDistance(p1: Point, p2: Point): number {
         return Supports.getDistance(p1.x, p1.y, p2.x, p2.y)
     }
 
-    getLength() {
+    getLength(): number {
         if (Compatibility.GeometryElement) {
             return Supports.getSvgLength(`M${this.sx},${this.sy}` + this.toPathString())
         }
@@ -715,16 +865,16 @@ PointBase.Arc = class extends PointBase {
     }
 }
 
-PointBase.ClosePath = class extends PointBase.LineTo {
-    constructor(path, parent, target) {
+class ClosePath extends LineTo {
+    constructor(path: Path, parent: { ex: number, ey: number }, target: { ex: number, ey: number, absolute: boolean }) {
         super(path, parent, target.ex, target.ey, target.absolute)
     }
 
-    render(context) {
+    render(context: CanvasRenderingContext2D): void {
         context.closePath()
     }
 
-    toPathString() {
+    toPathString(): string {
         return 'z'
     }
 }
@@ -740,4 +890,15 @@ const Compatibility = {
     })()
 }
 
-module.exports = Path
+PointBase.MoveTo = MoveTo
+PointBase.LineTo = LineTo
+PointBase.HorizontalLineTo = HorizontalLineTo
+PointBase.VerticalLineTo = VerticalLineTo
+PointBase.Curve = Curve
+PointBase.QuadraticBezierCurve = QuadraticBezierCurve
+PointBase.SmoothCurve = SmoothCurve
+PointBase.SmoothQuadraticBezierCurve = SmoothQuadraticBezierCurve
+PointBase.Arc = Arc
+PointBase.ClosePath = ClosePath
+
+export default Path

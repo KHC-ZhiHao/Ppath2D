@@ -158,6 +158,14 @@ let direction = p.getDirection(0.5)
 //direction === -225
 ```
 
+#### 獲取大小
+
+```js
+let p = new Ppath2D('m10,10 l200,200')
+let rect = p.getRect()
+//rect === { x: 10, y: 10, width: 200, height: 200 }
+```
+
 ---
 
 ### 描繪函數
