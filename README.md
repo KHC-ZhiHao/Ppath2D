@@ -5,9 +5,6 @@
     <a href="https://www.npmjs.com/package/ppath2d">
         <img src="https://img.shields.io/npm/v/ppath2d.svg">
     </a>
-    <a href='https://github.com/KHC-ZhiHao/Ppath2D/actions'>
-        <img src='https://github.com/KHC-ZhiHao/Ppath2D/actions/workflows/build-stage.yml/badge.svg'/>
-    </a>
     <a href="https://coveralls.io/github/KHC-ZhiHao/Ppath2D?branch=master">
         <img src="https://coveralls.io/repos/github/KHC-ZhiHao/Ppath2D/badge.svg?branch=master">
     </a>
