@@ -1,7 +1,7 @@
 <br>
 <p align="center"><img src="./logo.png"></p>
 <br>
-<p align="center">
+<h6 align="center">
     <a href="https://www.npmjs.com/package/ppath2d">
         <img src="https://img.shields.io/npm/v/ppath2d.svg">
     </a>
@@ -15,7 +15,7 @@
         <img src="https://img.shields.io/github/stars/KHC-ZhiHao/Ppath2D.svg?style=social">
     </a>
     <br>
-</p>
+</h6>
 
 <br>
 
