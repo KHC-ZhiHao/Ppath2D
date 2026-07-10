@@ -28,7 +28,7 @@
   "devDependencies": {
     "@stylistic/eslint-plugin": "^2.12.1",
     "canvas": "^3.2.0",
-    "esbuild": "^0.24.2",
+    "esbuild": "^0.25.0",
     "esbuild-node-externals": "^1.16.0",
     "esbuild-plugin-env": "^1.1.1",
     "esbuild-plugin-eslint": "^0.3.12",
